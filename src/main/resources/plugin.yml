@@ -2,3 +2,4 @@ name: Terraformer
 version: '${project.version}'
 main: com.dotkntrell.mc.terraformer.Terraformer
 api-version: 1.19
+load: STARTUP
