@@ -24,6 +24,8 @@ public class CoordinateIterable implements Iterable<Coordinate> {
         return new CoordinateIterator();
     }
 
+
+    //CLASSES
     private class CoordinateIterator implements Iterator<Coordinate> {
         private int currentX_, currentY_, currentZ_;
 

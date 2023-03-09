@@ -16,7 +16,7 @@ public final class Terraformer extends JavaPlugin {
     @Override
     public ChunkGenerator getDefaultWorldGenerator(String worldName, String id) {
         if (this.worldReader_ == null) {
-            this.getServer().getLogger().warning("No world with name '" + Terraformer.CONFIG.worldName + "' found");
+            this.getServer().getLogger().warning("No world with name '" + Terraformer.CONFIG.referenceWorldName + "' found");
             return super.getDefaultWorldGenerator(worldName, id);
         }
         this.getServer().getLogger().warning("Using Terraformer as world generator!");
@@ -37,8 +37,8 @@ public final class Terraformer extends JavaPlugin {
         }
 
         //Loading world
-        this.worldReader_ = new WorldReader(Terraformer.CONFIG.worldName);
-        this.getServer().getLogger().info("World + '" + Terraformer.CONFIG.worldName + "' successfully found.");
+        this.worldReader_ = new WorldReader(Terraformer.CONFIG.referenceWorldName);
+        this.getServer().getLogger().info("World + '" + Terraformer.CONFIG.referenceWorldName + "' successfully found.");
     }
 
     @Override

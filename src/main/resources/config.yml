@@ -1,1 +1,27 @@
-worldName: "backup"
+
+# The world to cupy the terrain from
+reference_world: "world_base"
+
+# Allow vanilla Minecraft engine to generate caves over reference world terrain.
+# This results in only perlin worms type caves. For Caves and Cliffs type cave systems, enable y_merge as well.
+generate_caves: true
+
+y_merge:
+  # If enabled, Terraform will generate vanilla underground (all caves, structures and underground noise) and place the reference world terrain on top of it.
+  enabled: false
+
+  # How to merge vanilla and reference worlds.
+  #   - ABSOLUTE: At a fixed Y height.
+  #   - RELATIVE: At a given depth based on terrain height and air pockets at every X and Z coordinates.
+  type: "ABSOLUTE"
+
+  # if type = ABSOLUTE, the Y height dividing reference and vanilla worlds.
+  # If type = RELATIVE, the depth of the reference world surface above the valida-generated one.
+  height: 22
+
+  # The range the transition between vanilla and reference worlds take, the wider, the smoother. A 0 or less value means a sharp transition.
+  blend_range: 8
+
+  # Only for type = RELATIVE. An absolute Y height regardless of the "height" setting, the transition should happen.
+  # <= -64 means no absolute height.
+  absolute_height: -64
