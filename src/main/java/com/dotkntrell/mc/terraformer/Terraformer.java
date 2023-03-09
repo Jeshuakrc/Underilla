@@ -1,23 +1,44 @@
 package com.dotkntrell.mc.terraformer;
 
 import com.dotkntrell.mc.terraformer.generation.TerraformerChunkGenerator;
-import org.bukkit.Bukkit;
+import com.dotkntrell.mc.terraformer.io.Config;
+import com.dotkntrell.mc.terraformer.io.reader.WorldReader;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.java.JavaPlugin;
+import java.io.File;
+import java.io.FileNotFoundException;
 
 public final class Terraformer extends JavaPlugin {
 
+    public static final Config CONFIG = new Config("");
+    private WorldReader worldReader_ = null;
 
     @Override
     public ChunkGenerator getDefaultWorldGenerator(String worldName, String id) {
-        this.getLogger().warning("Using Terraformer generation.");
-        return new TerraformerChunkGenerator();
+        if (this.worldReader_ == null) {
+            this.getServer().getLogger().warning("No world with name '" + Terraformer.CONFIG.worldName + "' found");
+            return super.getDefaultWorldGenerator(worldName, id);
+        }
+        this.getServer().getLogger().warning("Using Terraformer as world generator!");
+        return new TerraformerChunkGenerator(this.worldReader_);
     }
 
     @Override
     public void onEnable() {
-        this.getLogger().warning("15 / 16 = " + Integer.toString(15/16));
+        //Setting default config
+        this.saveResource("config.yml",false);
 
+        //Loading config
+        Terraformer.CONFIG.setFilePath(this.getDataFolder() + File.separator + "config.yml");
+        try {
+            Terraformer.CONFIG.load();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        //Loading world
+        this.worldReader_ = new WorldReader(Terraformer.CONFIG.worldName);
+        this.getServer().getLogger().info("World + '" + Terraformer.CONFIG.worldName + "' successfully found.");
     }
 
     @Override
