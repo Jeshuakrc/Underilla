@@ -1,18 +1,23 @@
 package com.dotkntrell.mc.terraformer.generation;
 
+import com.dotkntrell.mc.terraformer.Terraformer;
+import com.dotkntrell.mc.terraformer.io.Config;
 import com.dotkntrell.mc.terraformer.io.reader.ChunkReader;
 import com.dotkntrell.mc.terraformer.io.reader.WorldReader;
-import com.dotkntrell.mc.terraformer.utils.coordinate.Coordinate;
-import com.dotkntrell.mc.terraformer.utils.coordinate.CoordinateIterable;
+import com.dotkntrell.mc.terraformer.listener.VectorIterable;
 import org.bukkit.*;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.generator.WorldInfo;
+import org.bukkit.util.Vector;
+
+import java.util.Optional;
 import java.util.Random;
 
 public class TerraformerChunkGenerator extends ChunkGenerator {
 
     //FIELDS
     private final WorldReader worldReader_;
+    private final static Config CONFIG = Terraformer.CONFIG;
 
     public TerraformerChunkGenerator(WorldReader worldReader) {
         this.worldReader_ = worldReader;
@@ -25,24 +30,25 @@ public class TerraformerChunkGenerator extends ChunkGenerator {
     }
 
     @Override
-    public void generateNoise(WorldInfo worldInfo, Random random, int chunkX, int chunkZ, ChunkData chunkData) {
-        if (this.shouldGenerateNoise(worldInfo, random, chunkX, chunkZ)) { return; }
+    public void generateSurface(WorldInfo worldInfo, Random random, int chunkX, int chunkZ, ChunkData chunkData) {
+        Optional<ChunkReader> reader = this.worldReader_.readChunk(chunkX, chunkZ);
+        if (reader.isEmpty()) { return; }
 
         Bukkit.getLogger().info("Generating chunk [" + chunkX + " - " + chunkZ + "] from " + this.worldReader_.getWorldName() + ".");
-        CoordinateIterable iterable = new CoordinateIterable(
+        VectorIterable iterable = new VectorIterable(
                 0, 16,
                 chunkData.getMinHeight(), chunkData.getMaxHeight(),
                 0, 16
         );
-        ChunkReader chunkReader = this.worldReader_.readChunk(chunkX, chunkZ).get();
-        for (Coordinate c : iterable) {
-            Material material = chunkReader.materialAt(c.x(),c.y(),c.z());
-            chunkData.setBlock(c.x(), c.y(), c.z(), material);
+        for (Vector v : iterable) {
+            Material material = reader.get().materialAt(v.getBlockX(),v.getBlockY(),v.getBlockZ());
+            chunkData.setBlock(v.getBlockX(), v.getBlockY(), v.getBlockZ(), material);
         }
     }
 
     @Override
     public boolean shouldGenerateNoise(WorldInfo worldInfo, Random random, int chunkX, int chunkZ) {
+        if ( CONFIG.yMergeEnabled && CONFIG.yMergeHeight > worldInfo.getMinHeight() ) { return true; }
         return this.worldReader_.readChunk(chunkX, chunkZ).isEmpty();
     }
 

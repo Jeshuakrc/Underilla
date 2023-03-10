@@ -37,7 +37,11 @@ public final class Terraformer extends JavaPlugin {
         }
 
         //Loading world
-        this.worldReader_ = new WorldReader(Terraformer.CONFIG.referenceWorldName);
+        try {
+            this.worldReader_ = new WorldReader(Terraformer.CONFIG.referenceWorldName);
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        }
         this.getServer().getLogger().info("World + '" + Terraformer.CONFIG.referenceWorldName + "' successfully found.");
     }
 
