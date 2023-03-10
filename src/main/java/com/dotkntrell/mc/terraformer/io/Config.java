@@ -18,10 +18,10 @@ public class Config extends AbstractYamlConfig {
     public String referenceWorldName = "backup";
 
     @ConfigField(path = "y_merge.")
-    public boolean generateCaves = true;
+    public Boolean generateCaves = true;
 
     @ConfigField(path = "y_merge.enabled")
-    public boolean yMergeEnabled = false;
+    public Boolean yMergeEnabled = false;
 
     @ConfigField(path = "y_merge.type")
     public YMergeType yMergeType = YMergeType.ABSOLUTE;

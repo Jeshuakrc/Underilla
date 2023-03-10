@@ -35,11 +35,25 @@ public class TerraformerChunkGenerator extends ChunkGenerator {
         if (reader.isEmpty()) { return; }
 
         Bukkit.getLogger().info("Generating chunk [" + chunkX + " - " + chunkZ + "] from " + this.worldReader_.getWorldName() + ".");
-        VectorIterable iterable = new VectorIterable(
-                0, 16,
-                chunkData.getMinHeight(), chunkData.getMaxHeight(),
-                0, 16
-        );
+
+        int maxHeight;
+        ChunkReader.Range airColumn = reader.get().airColumn();
+        if (airColumn != null) {
+            Vector c1 = airColumn.corner1(), c2 = airColumn.corner2();
+            chunkData.setRegion(c1.getBlockX(), c1.getBlockY(), c1.getBlockZ(), c2.getBlockX(), c2.getBlockY(), c2.getBlockZ(), Material.AIR);
+            maxHeight = c1.getBlockY() - 1;
+        } else {
+            maxHeight = chunkData.getMaxHeight();
+        }
+
+        int minHeight;
+        if (CONFIG.yMergeEnabled && CONFIG.yMergeType.equals(Config.YMergeType.ABSOLUTE)) {
+            minHeight = CONFIG.yMergeHeight;
+        } else {
+            minHeight = chunkData.getMinHeight();
+        }
+
+        VectorIterable iterable = new VectorIterable(0, 16, minHeight, maxHeight, 0, 16);
         for (Vector v : iterable) {
             Material material = reader.get().materialAt(v.getBlockX(),v.getBlockY(),v.getBlockZ());
             chunkData.setBlock(v.getBlockX(), v.getBlockY(), v.getBlockZ(), material);
