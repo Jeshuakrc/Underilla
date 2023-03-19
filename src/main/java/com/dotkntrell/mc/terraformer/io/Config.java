@@ -11,27 +11,33 @@ public class Config extends AbstractYamlConfig {
     }
 
     //ASSETS
-    public enum YMergeType { ABSOLUTE, RELATIVE }
+    public enum YMergeStrategy { ABSOLUTE, RELATIVE }
 
     //FIELDS
     @ConfigField(path = "reference_world")
     public String referenceWorldName = "backup";
 
-    @ConfigField(path = "y_merge.")
+    @ConfigField(path = "generate_caves")
     public Boolean generateCaves = true;
 
     @ConfigField(path = "y_merge.enabled")
     public Boolean yMergeEnabled = false;
 
-    @ConfigField(path = "y_merge.type")
-    public YMergeType yMergeType = YMergeType.ABSOLUTE;
+    @ConfigField(path = "y_merge.strategy")
+    public YMergeStrategy yMergeStrategy = YMergeStrategy.ABSOLUTE;
 
-    @ConfigField(path = "y_merge.height")
+    @ConfigField(path = "y_merge.relative.upper_limit")
+    public int yMergeUpperLimit = 320;
+
+    @ConfigField(path = "y_merge.relative.lower_limit")
+    public int yMergeLowerLimit = -64;
+
+    @ConfigField(path = "y_merge.relative.depth")
+    public int yMergeDepth = 12;
+
+    @ConfigField(path = "y_merge.relative.lower_limit")
     public int yMergeHeight = 22;
 
     @ConfigField(path = "y_merge.blend_range")
     public int yMergeBlendRange = 8;
-
-    @ConfigField(path = "y_merge.absolute_height")
-    public int yMergeAbsoluteHeight = -64;
 }

@@ -1,4 +1,4 @@
-package com.dotkntrell.mc.terraformer.listener;
+package com.dotkntrell.mc.terraformer.util;
 
 import org.bukkit.util.Vector;
 import java.util.Iterator;
@@ -15,9 +15,9 @@ public class VectorIterable implements Iterable<Vector>, Iterator<Vector> {
         this.minX_ = minX; this.maxX_ = maxX;
         this.minY_ = minY; this.maxY_ = maxY;
         this.minZ_ = minZ; this.maxZ_ = maxZ;
-        this.currX_ = this.minX_;
-        this.currY_ = this.maxY_ - 1;
-        this.currZ_ = this.minZ_;
+        this.currX_ = this.maxX_ - 1;
+        this.currZ_ = this.minZ_ - 1;
+        this.currY_ = this.minY_;
     }
     public VectorIterable(int maxX, int maxY, int maxZ) {
         this(0, maxX, 0, maxY, 0, maxZ);
@@ -31,10 +31,13 @@ public class VectorIterable implements Iterable<Vector>, Iterator<Vector> {
 
     @Override
     public boolean hasNext() {
-        return this.currZ_ < this.maxZ_;
+        return hasNextColumn() || this.currY_ > this.minY_;
     }
     public boolean hasNextColumn() {
-        return this.hasNext() && (this.currX_ < this.maxX_ - 1);
+        return (this.currZ_ < this.maxZ_ - 1) || (this.currX_ < this.maxX_ - 1);
+    }
+    public boolean hasNextInColumn() {
+        return this.currY_ > this.minY_;
     }
 
     @Override
@@ -42,21 +45,19 @@ public class VectorIterable implements Iterable<Vector>, Iterator<Vector> {
         if (!this.hasNext()) {
             throw new NoSuchElementException();
         }
-
-        Vector r = new Vector(this.currX_, this.currY_, this.currZ_);
-        this.moveForward();
-        return r;
+        return this.moveForward();
     }
     public Vector nextColumn() {
         if (!this.hasNextColumn()) {
             throw new NoSuchElementException();
         }
         this.currY_ = this.minY_;
-        this.moveForward();
-        return this.next();
+        return this.moveForward();
     }
 
-    private void moveForward() {
+
+    //PRIVATE UTIL
+    private Vector moveForward() {
         this.currY_--;
         if (this.currY_ < VectorIterable.this.minY_) {
             this.currY_ = this.maxY_ - 1;
@@ -66,5 +67,6 @@ public class VectorIterable implements Iterable<Vector>, Iterator<Vector> {
             this.currX_ = this.minX_;
             this.currZ_++;
         }
+        return new Vector(this.currX_, this.currY_, this.currZ_);
     }
 }

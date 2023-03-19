@@ -2,16 +2,15 @@ package com.dotkntrell.mc.terraformer.io.reader;
 
 import com.google.common.collect.Lists;
 import com.jkantrell.mca.Chunk;
-import com.jkantrell.mca.PaletteContainer;
 import com.jkantrell.mca.Section;
 import com.jkantrell.nbt.tag.CompoundTag;
 import org.bukkit.Material;
 import org.bukkit.util.Vector;
-
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
-public class ChunkReader {
+public class ChunkReader implements Reader {
 
     //ASSETS
     public static record Range(Vector corner1, Vector corner2, Material material) {}
@@ -28,10 +27,10 @@ public class ChunkReader {
 
 
     //UTIL
-    public Material materialAt(int x, int y, int z) {
-        if (this.chunk_ == null) { return null; }
+    public Optional<Material> materialAt(int x, int y, int z) {
+        if (this.chunk_ == null) { return Optional.empty(); }
         CompoundTag tag = this.chunk_.getBlockStateAt(x, y, z);
-        return ChunkReader.materialFromBlockTag(tag).orElse(Material.AIR);
+        return ChunkReader.materialFromBlockTag(tag);
     }
     public ChunkReader.Range airColumn() {
         List<Section> sections = Lists.reverse(this.chunk_.getSections());
@@ -47,7 +46,21 @@ public class ChunkReader {
         }
         return (corner2.getBlockY() == chunkHeight) ? null : new ChunkReader.Range(corner1, corner2, Material.AIR);
     }
-
+    public List<LocatedMaterial> locationsOf(Predicate<Material> checker) {
+        return this.chunk_.locationsOf(t -> {
+            String n;
+            try { n = t.getString("Name"); } catch (ClassCastException e) { return false; }
+            if (n == null) { return false; }
+            Material m = Material.matchMaterial(n);
+            if (m == null) { return false; }
+            return checker.test(m);
+        }).stream()
+                .map(l -> new LocatedMaterial(l.x(), l.y(), l.z(), Material.matchMaterial(l.tag().getString("Name"))))
+                .toList();
+    }
+    public List<LocatedMaterial> locationsOf(Material material) {
+        return this.locationsOf(material::equals);
+    }
 
     //PRIVATE UTIL
     private static Optional<Material> materialFromBlockTag(CompoundTag tag) {

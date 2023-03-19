@@ -13,15 +13,24 @@ y_merge:
   # How to merge vanilla and reference worlds.
   #   - ABSOLUTE: At a fixed Y height.
   #   - RELATIVE: At a given depth based on terrain height and air pockets at every X and Z coordinates.
-  type: "ABSOLUTE"
+  strategy: "ABSOLUTE"
 
-  # if type = ABSOLUTE, the Y height dividing reference and vanilla worlds.
-  # If type = RELATIVE, the depth of the reference world surface above the valida-generated one.
-  height: 22
+  # RELATIVE strategy exclusive settings
+  relative:
+    # Above this height the RELATIVE strategy will be ignored, and only reference world terrain will be placed.
+    # No effect if > 319
+    upper_limit: 320
+    # Below this height the RELATIVE strategy will be ignored, and only vanilla world terrain will be placed.
+    # No effect if <= -64
+    lower_limit: -64
+    # How deep reference world terrain should dig into vanilla word.
+    depth: 12
 
-  # The range the transition between vanilla and reference worlds take, the wider, the smoother. A 0 or less value means a sharp transition.
+  # ABSOLUTE strategy exclusive settings
+  absolute:
+    # The Y height dividing reference terrain above and vanilla worlds below.
+    limit: 22
+
+  # The range the transition between vanilla and reference worlds takes, the wider, the smoother.
+  # <= 0 results in a sharp transition.
   blend_range: 8
-
-  # Only for type = RELATIVE. An absolute Y height regardless of the "height" setting, the transition should happen.
-  # <= -64 means no absolute height.
-  absolute_height: -64
