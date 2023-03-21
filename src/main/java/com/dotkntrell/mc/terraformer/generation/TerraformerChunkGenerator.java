@@ -45,11 +45,11 @@ public class TerraformerChunkGenerator extends ChunkGenerator {
             if (y < worldInfo.getMinHeight()) { break; }
             m = chunkReader.get().materialAt(Math.floorMod(x, 16), y, Math.floorMod(z, 16)).orElse(Material.AIR);
         } while (check.test(m));
-            return y + 1;
+        return y + 1;
     }
 
     @Override
-    public void generateSurface(WorldInfo worldInfo, Random random, int chunkX, int chunkZ, ChunkData chunkData) {
+    public void generateNoise(WorldInfo worldInfo, Random random, int chunkX, int chunkZ, ChunkData chunkData) {
         Optional<ChunkReader> reader = this.worldReader_.readChunk(chunkX, chunkZ);
         if (reader.isEmpty()) { return; }
         Bukkit.getLogger().info("Generating chunk [" + chunkX + " - " + chunkZ + "] from " + this.worldReader_.getWorldName() + ".");
@@ -65,7 +65,7 @@ public class TerraformerChunkGenerator extends ChunkGenerator {
 
     @Override
     public boolean shouldGenerateSurface(WorldInfo worldInfo, Random random, int chunkX, int chunkZ) {
-        return this.shouldGenerateNoise(worldInfo, random, chunkX, chunkZ);
+        return this.worldReader_.readChunk(chunkX,chunkZ).isEmpty();
     }
 
 

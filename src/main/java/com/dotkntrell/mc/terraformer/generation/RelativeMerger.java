@@ -1,6 +1,7 @@
 package com.dotkntrell.mc.terraformer.generation;
 
 import com.dotkntrell.mc.terraformer.io.reader.ChunkReader;
+import com.dotkntrell.mc.terraformer.io.reader.LocatedMaterial;
 import com.dotkntrell.mc.terraformer.io.reader.Reader;
 import com.dotkntrell.mc.terraformer.io.reader.WorldReader;
 import com.dotkntrell.mc.terraformer.util.VectorIterable;
@@ -10,15 +11,15 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.generator.WorldInfo;
 import org.bukkit.util.Vector;
-
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class RelativeMerger implements Merger {
 
     //ASSETS
-    private static final BlockFace[] SIDE_FACES = { BlockFace.EAST, BlockFace.WEST, BlockFace.NORTH, BlockFace.SOUTH };
+    private static final BlockFace[] SIDE_FACES = { BlockFace.EAST, BlockFace.WEST, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.NORTH_EAST, BlockFace.NORTH_WEST, BlockFace.SOUTH_EAST, BlockFace.SOUTH_WEST };
 
     //FIELDS
     private final WorldReader worldReader_;
@@ -39,59 +40,67 @@ public class RelativeMerger implements Merger {
     @Override
     public void merge(WorldInfo worldInfo, Random random, int chunkX, int chunkZ, ChunkGenerator.ChunkData chunkData, ChunkReader chunkReader) {
 
-        //Defining max height to read the chunk;
-        int maxHeight;
-        ChunkReader.Range airColumn = chunkReader.airColumn();
-        if (airColumn != null) {
-            Vector c1 = airColumn.corner1(), c2 = airColumn.corner2();
-            chunkData.setRegion(c1.getBlockX(), c1.getBlockY(), c1.getBlockZ(), c2.getBlockX(), c2.getBlockY(), c2.getBlockZ(), Material.AIR);
-            maxHeight = c1.getBlockY();
-        } else {
-            maxHeight = this.upperLimit_;
+        //Extracting chunk
+        ChunkReader chunk = this.worldReader_.readChunk(chunkX,chunkZ).orElse(null);
+        if (chunk == null) { return; }
+
+        //Getting rid of top air column (KEY FOR PERFORMANCE)
+        int airColumn = Math.max(chunk.airColumnBottomHeight(), this.lowerLimit_);
+        chunkData.setRegion(0, airColumn, 0, 16, chunkData.getMaxHeight(), 16, Material.AIR);
+
+        //Getting all surrounding chunks from the base world
+        List<ChunkReader> chunks = new ArrayList<>(9);
+        for (BlockFace f : RelativeMerger.SIDE_FACES) {
+            this.worldReader_.readChunk(chunkX + f.getModX(), chunkZ + f.getModZ()).ifPresent(chunks::add);
+        }
+        chunks.add(chunk);
+
+        //Getting all non solid blocks
+        List<Vector> fillVectors = new LinkedList<>();
+        for (ChunkReader c : chunks) {
+            c.locationsOf(m -> !m.isSolid(), airColumn, chunkData.getMinHeight()).stream()      //Constraining the height up to the air column is also key for performance
+                    .map(LocatedMaterial::toVector)
+                    .map(v -> RelativeMerger.absoluteCoordinates(c.getX(), c.getZ(), v))
+                    .forEach(fillVectors::add);
         }
 
-        Vector  minVector = RelativeMerger.absoluteCoordinates(chunkX, chunkZ, new Vector(-this.depth_, worldInfo.getMinHeight(), -this.depth_)),
-                maxVector = RelativeMerger.absoluteCoordinates(chunkX, chunkZ, new Vector(15 + this.depth_, maxHeight, 15 + this.depth_));
-        List<Vector> toSpread = new LinkedList<>();
-
-        BlockSetterIterable i = new BlockSetterIterable(this.worldReader_, chunkData, minVector.getBlockX(), maxVector.getBlockX(), minVector.getBlockY(), maxVector.getBlockY(), minVector.getBlockZ(), maxVector.getBlockZ());
-
-        while (i.hasNextColumn()) {
-            i.nextColumn();
-            boolean inCHunk = RelativeMerger.isInChunk(chunkX, chunkZ, i.currentPosition());
-
-            if (inCHunk) {
-                i.doWhileInColumn(it -> !it.vanillaCurrent().isSolid(), BlockSetterIterable::set);
-                if (!i.hasNextInColumn()) { continue; }
-                if (i.current().isSolid()) {
-                    toSpread.add(i.currentPosition());
-                    continue;
-                }
-            }
-            Consumer<BlockSetterIterable> action = inCHunk ? BlockSetterIterable::set : it -> {};
-            i.doWhileInColumn(it -> !it.current().isSolid(), action.andThen(it -> {
-                for (BlockFace f : RelativeMerger.SIDE_FACES) {
-                    Vector v = it.currentPosition();
-                    Optional<Material> m = this.worldReader_.materialAt(v.getBlockX() + f.getModX(), v.getBlockY(), v.getBlockZ() + f.getModZ());
-                    if (m.map(Material::isSolid).orElse(false)) {
-                        toSpread.add(it.currentPosition());
-                        return;
-                    }
-                }
-            }));
-            if (i.hasNextInColumn()) { toSpread.add(i.currentPosition().add(BlockFace.UP.getDirection())); }
-        }
-
-        BlockSpreader spreader = new BlockSpreader(toSpread, this.worldReader_)
-                .setLimits(minVector.getBlockX(), maxVector.getBlockX(), minVector.getBlockY(), maxVector.getBlockY(), minVector.getBlockZ(), maxVector.getBlockZ())
-                .setCondition(m -> m.isSolid())
+        //Defining spreader constrains
+        Vector  minVector = RelativeMerger.absoluteCoordinates(chunkX, chunkZ, new Vector(-this.depth_, chunkData.getMinHeight(), -this.depth_)),
+                maxVector = RelativeMerger.absoluteCoordinates(chunkX, chunkZ, new Vector(15 + this.depth_, chunkData.getMaxHeight(), 15 + this.depth_));
+        Spreader spreader = new Spreader()
+                .setContainer(minVector, maxVector)
                 .setIterationsAmount(this.depth_);
-        spreader.spread().stream()
+
+        //Getting rid of all non-used vectors
+        fillVectors.removeIf(v -> v.getBlockY() < this.lowerLimit_ || !spreader.contains(v));
+
+        //Including everything above upper limit, and any non-solid block over vanilla noise surface.
+        Function<Vector, Material> materialGetter = v -> chunkData.getType(Math.floorMod(v.getBlockX(), 16), v.getBlockY(), Math.floorMod(v.getBlockZ(), 16));
+        VectorIterable i = new VectorIterable(minVector.getBlockX(), maxVector.getBlockX(), this.lowerLimit_, airColumn, minVector.getBlockZ(), maxVector.getBlockZ());
+        while (i.hasNextColumn()) {
+            Vector v = i.nextColumn();
+            if (!RelativeMerger.isInChunk(chunkX, chunkZ, v)) { continue; }
+            while (!materialGetter.apply(v).isSolid() || this.upperLimit_ < v.getBlockY()) {
+                fillVectors.add(v);
+                if (!i.hasNextInColumn()) { break; }
+                v = i.next();
+            }
+        }
+
+        //Spreading filler vectors
+        fillVectors = spreader.setRootVectors(fillVectors).spread();
+
+        fillVectors.stream()
+                //Cutting everything out of the actual chunk
                 .filter(v -> RelativeMerger.isInChunk(chunkX, chunkZ, v))
-                .forEach(v ->
-                        this.worldReader_.materialAt(v).ifPresent(m ->
-                            chunkData.setBlock(Math.floorMod(v.getBlockX(),16), v.getBlockY(), Math.floorMod(v.getBlockZ(), 16), Material.IRON_BLOCK)
-                ));
+                //Placing base-world blocks over valina world
+                .forEach(v -> {
+                    v = RelativeMerger.relativeCoordinates(v);
+                    Material m = chunk.materialAt(v).orElse(null);
+                    if (m == null) { return; }
+                    chunkData.setBlock(v.getBlockX(), v.getBlockY(), v.getBlockZ(), m);
+                });
+
     }
 
 
@@ -99,6 +108,11 @@ public class RelativeMerger implements Merger {
     private static Vector absoluteCoordinates(int chunkX, int chunkZ, Vector v) {
         v.setX((chunkX * 16) + v.getBlockX());
         v.setZ((chunkZ * 16) + v.getBlockZ());
+        return v;
+    }
+    private static Vector relativeCoordinates(Vector v) {
+        v.setX(Math.floorMod(v.getBlockX(), 16));
+        v.setZ(Math.floorMod(v.getBlockZ(), 16));
         return v;
     }
     private static boolean isInChunk(int chunkX, int chunkZ, Vector v) {

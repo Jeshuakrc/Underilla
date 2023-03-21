@@ -26,17 +26,10 @@ class AbsoluteMerger implements Merger {
     //OVERWRITES
     @Override
     public void merge(WorldInfo worldInfo, Random random, int chunkX, int chunkZ, ChunkGenerator.ChunkData chunkData, ChunkReader chunkReader) {
-        int maxHeight;
-        ChunkReader.Range airColumn = chunkReader.airColumn();
-        if (airColumn != null) {
-            Vector c1 = airColumn.corner1(), c2 = airColumn.corner2();
-            chunkData.setRegion(c1.getBlockX(), c1.getBlockY(), c1.getBlockZ(), c2.getBlockX(), c2.getBlockY(), c2.getBlockZ(), Material.AIR);
-            maxHeight = c1.getBlockY();
-        } else {
-            maxHeight = chunkData.getMaxHeight() + 1;
-        }
+        int airColumn = Math.max(chunkReader.airColumnBottomHeight(), this.height_);
+        chunkData.setRegion(0, airColumn, 0, 15, chunkData.getMaxHeight(), 15, Material.AIR);
 
-        VectorIterable iterable = new VectorIterable(0, 16, this.height_, maxHeight, 0, 16);
+        VectorIterable iterable = new VectorIterable(0, 16, this.height_, airColumn, 0, 16);
         for (Vector v : iterable) {
             Material material = chunkReader.materialAt(v.getBlockX(),v.getBlockY(),v.getBlockZ()).orElse(Material.AIR);
             chunkData.setBlock(v.getBlockX(), v.getBlockY(), v.getBlockZ(), material);
