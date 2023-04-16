@@ -72,6 +72,13 @@ class Spreader {
     public boolean contains(Vector vector) {
         return this.contains(vector.getBlockX(), vector.getBlockY(), vector.getBlockZ());
     }
+    public boolean isPresent(int x, int y, int z) {
+        if (!this.contains(x, y, z)) { return false; }
+        return this.getMap(x, y, z);
+    }
+    public boolean isPresent(Vector vector) {
+        return this.isPresent(vector.getBlockX(), vector.getBlockY(), vector.getBlockZ());
+    }
 
 
     //PRIVATE UTIL

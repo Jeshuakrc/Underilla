@@ -7,6 +7,7 @@ import com.dotkntrell.mc.terraformer.io.reader.WorldReader;
 import com.dotkntrell.mc.terraformer.util.VectorIterable;
 import com.jkantrell.mca.MCAUtil;
 import org.bukkit.Material;
+import org.bukkit.block.Biome;
 import org.bukkit.block.BlockFace;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.generator.WorldInfo;
@@ -38,7 +39,7 @@ public class RelativeMerger implements Merger {
 
     //OVERWRITES
     @Override
-    public void merge(WorldInfo worldInfo, Random random, int chunkX, int chunkZ, ChunkGenerator.ChunkData chunkData, ChunkReader chunkReader) {
+    public void mergeLand(WorldInfo worldInfo, Random random, int chunkX, int chunkZ, ChunkGenerator.ChunkData chunkData) {
 
         //Extracting chunk
         ChunkReader chunk = this.worldReader_.readChunk(chunkX,chunkZ).orElse(null);
@@ -102,6 +103,48 @@ public class RelativeMerger implements Merger {
                 });
 
     }
+    @Override
+    public void mergeBiomes(WorldInfo worldInfo, Random random, int chunkX, int chunkZ, AugmentedChunkData chunkData) {
+        //Extracting chunk
+        ChunkReader chunk = this.worldReader_.readChunk(chunkX,chunkZ).orElse(null);
+        if (chunk == null) { return; }
+
+        //Extracting all non-solid blocks from base chunk, and trunking them into 4x4x4 biome cells.
+        List<Vector> cells = chunk.locationsOf(m -> !m.isSolid()).stream()
+                .map(LocatedMaterial::toVector)
+                .peek(v -> {
+                    v.setX(v.getBlockX() >> 2);
+                    v.setY(v.getBlockY() >> 2);
+                    v.setZ(v.getBlockZ() >> 2);
+                })
+                .distinct()
+                .toList();
+
+        //Using a spreader to map cells in a 3D grid
+        Spreader spreader = new Spreader()
+                .setContainer(0, chunkData.getMinHeight() >> 2, 0, 3, (chunkData.getMaxHeight() >> 2) - 1, 3)
+                .setRootVectors(cells);
+        spreader.spread();
+
+        //Looping through every cell
+        VectorIterable i = new VectorIterable(0, 4, chunkData.getMinHeight() >> 2, chunkData.getMaxHeight() >> 2, 0, 4);
+        outer: for (Vector v : i) {
+            if (!spreader.isPresent(v)) {
+                int     cellX = v.getBlockX() << 2,
+                        cellY = v.getBlockY() << 2,
+                        cellZ = v.getBlockZ() << 2;
+                VectorIterable j = new VectorIterable(cellX, cellX + 4, cellY, cellY + 4, cellZ, cellZ + 4);
+                for (Vector subV : j) {
+                    Material m = chunkData.getType(subV.getBlockX(), subV.getBlockY(), subV.getBlockZ());
+                    if (!m.isSolid()) { continue outer; }
+                }
+            }
+
+            Biome b = chunk.biomeAt(v).orElse(null);
+            if (b == null) { continue; }
+            chunkData.setBiome(v.getBlockX(), v.getBlockY(), v.getBlockZ(), b);
+        }
+    }
 
 
     //PRIVATE UTIL
@@ -120,90 +163,4 @@ public class RelativeMerger implements Merger {
                 z = MCAUtil.blockToChunk(v.getBlockZ()) == chunkZ;
         return x && z;
     }
-
-
-    //CLASSES
-    private static class BlockSetterIterable implements Iterable<Material>, Iterator<Material> {
-
-        //FIELDS
-        private final Reader reader_;
-        private final ChunkGenerator.ChunkData chunkData_;
-        private final VectorIterable iterable_;
-        private Material currMaterial_;
-        private Vector currVector_;
-
-
-        //CONSTRUCTOR
-        BlockSetterIterable(Reader reader, ChunkGenerator.ChunkData chunkData, VectorIterable iterable) {
-            this.reader_ = reader;
-            this.iterable_ = iterable;
-            this.chunkData_ = chunkData;
-        }
-        BlockSetterIterable(Reader reader, ChunkGenerator.ChunkData chunkData, int minX, int maxX, int minY, int maxY, int minZ, int maxZ) {
-            this(reader, chunkData, new VectorIterable(minX, maxX, minY, maxY, minZ, maxZ));
-        }
-
-
-        @Override
-        public boolean hasNext() {
-            return this.iterable_.hasNext();
-        }
-
-        public boolean hasNextColumn() {
-            return this.iterable_.hasNextColumn();
-        }
-
-        public boolean hasNextInColumn() {
-            return this.iterable_.hasNextInColumn();
-        }
-
-        @Override
-        public Material next() {
-            this.currVector_ = this.iterable_.next();
-            return this.setCurrent();
-        }
-
-        public Material nextColumn() {
-            this.currVector_ = this.iterable_.nextColumn();
-            return this.setCurrent();
-        }
-
-        public Material current() {
-            return this.currMaterial_;
-        }
-
-        public Material vanillaCurrent() {
-            Vector v = this.currVector_;
-            return this.chunkData_.getType(Math.floorMod(v.getBlockX(), 16), v.getBlockY(), Math.floorMod(v.getBlockZ(), 16));
-        }
-
-        public Vector currentPosition() {
-            return this.currVector_;
-        }
-
-        public void set() {
-            Vector v = this.currVector_;
-            this.chunkData_.setBlock(Math.floorMod(v.getBlockX(), 16), v.getBlockY(), Math.floorMod(v.getBlockZ(), 16), this.currMaterial_);
-        }
-
-        private Material setCurrent() {
-            Vector v = this.currVector_;
-            this.currMaterial_ = this.reader_.materialAt(v.getBlockX(), v.getBlockY(), v.getBlockZ()).orElse(Material.AIR);
-            return this.currMaterial_;
-        }
-
-        public void doWhileInColumn(Predicate<BlockSetterIterable> check, Consumer<BlockSetterIterable> action) {
-            while (check.test(this)) {
-                action.accept(this);
-                if (!this.hasNextInColumn()) { break; }
-                next();
-            }
-        }
-
-        @Override
-        public Iterator<Material> iterator() {
-            return this;
-        }
-    }
-
 }

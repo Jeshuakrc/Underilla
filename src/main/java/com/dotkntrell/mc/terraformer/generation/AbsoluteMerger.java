@@ -25,14 +25,25 @@ class AbsoluteMerger implements Merger {
 
     //OVERWRITES
     @Override
-    public void merge(WorldInfo worldInfo, Random random, int chunkX, int chunkZ, ChunkGenerator.ChunkData chunkData, ChunkReader chunkReader) {
-        int airColumn = Math.max(chunkReader.airColumnBottomHeight(), this.height_);
+    public void mergeLand(WorldInfo worldInfo, Random random, int chunkX, int chunkZ, ChunkGenerator.ChunkData chunkData) {
+        //Extracting chunk
+        ChunkReader chunk = this.worldReader_.readChunk(chunkX,chunkZ).orElse(null);
+        if (chunk == null) { return; }
+
+        int airColumn = Math.max(chunk.airColumnBottomHeight(), this.height_);
         chunkData.setRegion(0, airColumn, 0, 15, chunkData.getMaxHeight(), 15, Material.AIR);
 
         VectorIterable iterable = new VectorIterable(0, 16, this.height_, airColumn, 0, 16);
         for (Vector v : iterable) {
-            Material material = chunkReader.materialAt(v.getBlockX(),v.getBlockY(),v.getBlockZ()).orElse(Material.AIR);
+            Material material = chunk.materialAt(v.getBlockX(),v.getBlockY(),v.getBlockZ()).orElse(Material.AIR);
             chunkData.setBlock(v.getBlockX(), v.getBlockY(), v.getBlockZ(), material);
         }
     }
+
+    @Override
+    public void mergeBiomes(WorldInfo worldInfo, Random random, int chunkX, int chunkZ, AugmentedChunkData chunkData) {
+
+    }
+
+
 }

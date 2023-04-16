@@ -6,6 +6,7 @@ import com.jkantrell.mca.MCAUtil;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.Material;
+import org.bukkit.block.Biome;
 
 import java.io.File;
 import java.util.*;
@@ -30,7 +31,7 @@ public class WorldReader implements Reader {
         this(new File(worldPath), cacheSize);
     }
     public WorldReader(File worldDir) throws NoSuchFieldException {
-        this(worldDir, 16);
+        this(worldDir, 256);
     }
     public WorldReader(File worldDir, int cacheSize) throws NoSuchFieldException {
         if (!(worldDir.exists() && worldDir.isDirectory())) {
@@ -54,10 +55,17 @@ public class WorldReader implements Reader {
 
 
     //UTIL
+    @Override
     public Optional<Material> materialAt(int x, int y, int z) {
         int chunkX = MCAUtil.blockToChunk(x), chunkZ = MCAUtil.blockToChunk(z);
         return this.readChunk(chunkX, chunkZ)
                 .flatMap(c -> c.materialAt(Math.floorMod(x, 16), y, Math.floorMod(z, 16)));
+    }
+    @Override
+    public Optional<Biome> biomeAt(int x, int y, int z) {
+        int chunkX = MCAUtil.blockToChunk(x), chunkZ = MCAUtil.blockToChunk(z);
+        return this.readChunk(chunkX, chunkZ)
+                .flatMap(c -> c.biomeAt(Math.floorMod(x, 16), y, Math.floorMod(z, 16)));
     }
     public Optional<ChunkReader> readChunk(int x, int z) {
         ChunkReader chunkReader = this.chunkCache_.get(x,z);
@@ -66,7 +74,6 @@ public class WorldReader implements Reader {
         if (r == null) { return Optional.empty(); }
         Chunk chunk = r.getChunk(Math.floorMod(x, 32), Math.floorMod(z, 32));
         if (chunk == null) {
-            this.chunkCache_.put(x, z, null);
             return Optional.empty();
         }
         chunkReader = new ChunkReader(chunk);
@@ -86,7 +93,6 @@ public class WorldReader implements Reader {
         }
         try {
             region = MCAUtil.read(regionFile);
-            this.regionCache_.put(x, z, region);
             return region;
         } catch (Exception e) {
             e.printStackTrace();
@@ -124,8 +130,10 @@ public class WorldReader implements Reader {
             if (map_.containsKey(pair)) {
                 this.queue_.remove(pair);
             } else if (this.queue_.size() >= this.capacity_) {
-                Pair<Integer, Integer> temp = this.queue_.removeLast();
-                this.map_.remove(temp);
+                try {
+                    Pair<Integer, Integer> temp = this.queue_.removeLast();
+                    this.map_.remove(temp);
+                } catch (NoSuchElementException ignored) {}
             }
             this.map_.put(pair, file);
             this.queue_.addFirst(pair);

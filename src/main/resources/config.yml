@@ -3,34 +3,32 @@
 reference_world: "world_base"
 
 # Allow vanilla Minecraft engine to generate caves over reference world terrain.
-# This results in only perlin worms type caves. For Caves and Cliffs type cave systems, enable y_merge as well.
-generate_caves: true
+# This results in only perlin worms type caves. 1.18+ caves are generated only in vanilla underground.
+generate_noodle_caves: true
 
-y_merge:
-  # If enabled, Terraform will generate vanilla underground (all caves, structures and underground noise) and place the reference world terrain on top of it.
-  enabled: false
+overwrite_biomes: true
 
-  # How to merge vanilla and reference worlds.
-  #   - ABSOLUTE: At a fixed Y height.
-  #   - RELATIVE: At a given depth based on terrain height and air pockets at every X and Z coordinates.
-  strategy: "ABSOLUTE"
+# How to merge vanilla and reference worlds.
+#   - ABSOLUTE: At a fixed Y height.
+#   - RELATIVE: At a given depth based on terrain height and air pockets at every X and Z coordinates.
+strategy: "ABSOLUTE"
 
-  # RELATIVE strategy exclusive settings
-  relative:
-    # Above this height the RELATIVE strategy will be ignored, and only reference world terrain will be placed.
-    # No effect if > 319
-    upper_limit: 320
-    # Below this height the RELATIVE strategy will be ignored, and only vanilla world terrain will be placed.
-    # No effect if <= -64
-    lower_limit: -64
-    # How deep reference world terrain should dig into vanilla word.
-    depth: 12
+# RELATIVE strategy exclusive settings
+relative:
+  # Above this height the RELATIVE strategy will be ignored, and only reference world terrain will be placed.
+  # No effect if > 319
+  upper_limit: 320
+  # Below this height the RELATIVE strategy will be ignored, and only vanilla world terrain will be placed.
+  # No effect if <= -64
+  lower_limit: -64
+  # How deep reference world terrain should dig into vanilla word.
+  depth: 12
 
-  # ABSOLUTE strategy exclusive settings
-  absolute:
-    # The Y height dividing reference terrain above and vanilla worlds below.
-    limit: 22
+# ABSOLUTE strategy exclusive settings
+absolute:
+  # The Y height dividing reference terrain above and vanilla worlds below.
+  limit: 22
 
-  # The range the transition between vanilla and reference worlds takes, the wider, the smoother.
-  # <= 0 results in a sharp transition.
-  blend_range: 8
+# The range the transition between vanilla and reference worlds takes, the wider, the smoother.
+# <= 0 results in a sharp transition.
+blend_range: 8

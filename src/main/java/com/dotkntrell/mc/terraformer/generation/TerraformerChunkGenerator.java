@@ -6,19 +6,27 @@ import com.dotkntrell.mc.terraformer.io.reader.ChunkReader;
 import com.dotkntrell.mc.terraformer.io.reader.WorldReader;
 import com.jkantrell.mca.MCAUtil;
 import org.bukkit.*;
+import org.bukkit.craftbukkit.v1_19_R3.generator.CraftChunkData;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.generator.WorldInfo;
+
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.function.Predicate;
 
 public class TerraformerChunkGenerator extends ChunkGenerator {
 
+    //ASSETS
+    private final static Config CONFIG = Terraformer.CONFIG;
+
+
     //FIELDS
     private final WorldReader worldReader_;
     private final Merger merger_;
-    private final static Config CONFIG = Terraformer.CONFIG;
 
+
+    //CONSTRUCTORS
     public TerraformerChunkGenerator(WorldReader worldReader) {
         this.worldReader_ = worldReader;
         this.merger_ = CONFIG.yMergeStrategy.equals(Config.YMergeStrategy.ABSOLUTE)
@@ -34,7 +42,6 @@ public class TerraformerChunkGenerator extends ChunkGenerator {
             case OCEAN_FLOOR, OCEAN_FLOOR_WG, MOTION_BLOCKING -> Material::isSolid;
             case MOTION_BLOCKING_NO_LEAVES -> m -> m.isSolid() || m.toString().contains("LEAVES");
         };
-
         int chunkX = MCAUtil.blockToChunk(x), chunkZ = MCAUtil.blockToChunk(z);
         Optional<ChunkReader> chunkReader = this.worldReader_.readChunk(chunkX, chunkZ);
         if (chunkReader.isEmpty()) { return super.getBaseHeight(worldInfo, random, x, z, heightMap); }
@@ -49,11 +56,13 @@ public class TerraformerChunkGenerator extends ChunkGenerator {
     }
 
     @Override
-    public void generateNoise(WorldInfo worldInfo, Random random, int chunkX, int chunkZ, ChunkData chunkData) {
+    public void generateSurface(WorldInfo worldInfo, Random random, int chunkX, int chunkZ, ChunkData chunkData) {
         Optional<ChunkReader> reader = this.worldReader_.readChunk(chunkX, chunkZ);
         if (reader.isEmpty()) { return; }
+        AugmentedChunkData augmentedChunkData = new AugmentedChunkData((CraftChunkData) chunkData);
         Bukkit.getLogger().info("Generating chunk [" + chunkX + " - " + chunkZ + "] from " + this.worldReader_.getWorldName() + ".");
-        this.merger_.merge(worldInfo, random, chunkX, chunkZ, chunkData, reader.get());
+        this.merger_.mergeLand(worldInfo, random, chunkX, chunkZ, augmentedChunkData);
+        this.merger_.mergeBiomes(worldInfo, random, chunkX, chunkZ, augmentedChunkData);
     }
 
     @Override
