@@ -25,16 +25,6 @@ public final class Terraformer extends JavaPlugin {
     }
 
     @Override
-    public BiomeProvider getDefaultBiomeProvider(String worldName, String id) {
-        if (this.worldReader_ == null) {
-            this.getServer().getLogger().warning("No world with name '" + Terraformer.CONFIG.referenceWorldName + "' found");
-            return super.getDefaultBiomeProvider(worldName, id);
-        }
-        this.getServer().getLogger().warning("Using Terraformer as world biome provider!");
-        return new TerraformerBiomeProvider(this.worldReader_, this);
-    }
-
-    @Override
     public void onEnable() {
         //Setting default config
         this.saveResource("config.yml",false);
