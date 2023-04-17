@@ -124,4 +124,9 @@ public class AugmentedChunkData implements ChunkGenerator.ChunkData {
         ChunkAccess access = this.internal_.getHandle();
         access.setHeightmap(AugmentedChunkData.HEIGHT_MAP_TYPES_MAP.get(heightMap.getType()), heightMap.getLongs());
     }
+
+    public int getHeight(HeightMap type, int x, int z) {
+        ChunkAccess access = this.internal_.getHandle();
+        return access.getHeight(AugmentedChunkData.HEIGHT_MAP_TYPES_MAP.get(type), x, z);
+    }
 }

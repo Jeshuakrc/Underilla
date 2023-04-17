@@ -17,5 +17,11 @@ public interface Reader {
     default Optional<Biome> biomeAt(Vector vector) {
         return this.biomeAt(vector.getBlockX(), vector.getBlockY(), vector.getBlockZ());
     }
+    default Optional<Biome> biomeAtCell(int x, int y, int z) {
+        return this.biomeAt(x << 2, y << 2, z << 2);
+    }
+    default Optional<Biome> biomeAtCell(Vector vector) {
+        return this.biomeAtCell(vector.getBlockX(), vector.getBlockY(), vector.getBlockZ());
+    }
 
 }

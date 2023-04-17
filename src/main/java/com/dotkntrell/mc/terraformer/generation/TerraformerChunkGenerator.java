@@ -9,11 +9,9 @@ import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_19_R3.generator.CraftChunkData;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.generator.WorldInfo;
-
-import java.util.Map;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 public class TerraformerChunkGenerator extends ChunkGenerator {
 
@@ -34,17 +32,17 @@ public class TerraformerChunkGenerator extends ChunkGenerator {
                 : new RelativeMerger(this.worldReader_, CONFIG.yMergeUpperLimit, CONFIG.yMergeLowerLimit, CONFIG.yMergeDepth, CONFIG.yMergeBlendRange);
     }
 
-
     @Override
     public int getBaseHeight(WorldInfo worldInfo, Random random, int x, int z, HeightMap heightMap) {
+        int chunkX = MCAUtil.blockToChunk(x), chunkZ = MCAUtil.blockToChunk(z);
+        Optional<ChunkReader> chunkReader = this.worldReader_.readChunk(chunkX, chunkZ);
+        if (chunkReader.isEmpty()) { return 0; }
+
         Predicate<Material> check = switch (heightMap) {
             case WORLD_SURFACE, WORLD_SURFACE_WG -> Material::isAir;
             case OCEAN_FLOOR, OCEAN_FLOOR_WG, MOTION_BLOCKING -> Material::isSolid;
             case MOTION_BLOCKING_NO_LEAVES -> m -> m.isSolid() || m.toString().contains("LEAVES");
         };
-        int chunkX = MCAUtil.blockToChunk(x), chunkZ = MCAUtil.blockToChunk(z);
-        Optional<ChunkReader> chunkReader = this.worldReader_.readChunk(chunkX, chunkZ);
-        if (chunkReader.isEmpty()) { return super.getBaseHeight(worldInfo, random, x, z, heightMap); }
         int y = worldInfo.getMaxHeight();
         Material m;
         do {
@@ -59,8 +57,8 @@ public class TerraformerChunkGenerator extends ChunkGenerator {
     public void generateSurface(WorldInfo worldInfo, Random random, int chunkX, int chunkZ, ChunkData chunkData) {
         Optional<ChunkReader> reader = this.worldReader_.readChunk(chunkX, chunkZ);
         if (reader.isEmpty()) { return; }
-        AugmentedChunkData augmentedChunkData = new AugmentedChunkData((CraftChunkData) chunkData);
         Bukkit.getLogger().info("Generating chunk [" + chunkX + " - " + chunkZ + "] from " + this.worldReader_.getWorldName() + ".");
+        AugmentedChunkData augmentedChunkData = new AugmentedChunkData((CraftChunkData) chunkData);
         this.merger_.mergeLand(worldInfo, random, chunkX, chunkZ, augmentedChunkData);
         this.merger_.mergeBiomes(worldInfo, random, chunkX, chunkZ, augmentedChunkData);
     }
@@ -96,5 +94,31 @@ public class TerraformerChunkGenerator extends ChunkGenerator {
     @Override
     public boolean shouldGenerateStructures(WorldInfo worldInfo, Random random, int chunkX, int chunkZ) {
         return true;
+    }
+
+
+    private void setHeightMap(WorldInfo worldInfo, Random random, int chunkX, int chunkZ, AugmentedChunkData chunkData) {
+        Map<HeightMap, HeightMapWrapper> maps = new HashMap<>();
+        Stream.of(HeightMap.WORLD_SURFACE, HeightMap.WORLD_SURFACE_WG, HeightMap.OCEAN_FLOOR, HeightMap.OCEAN_FLOOR_WG, HeightMap.MOTION_BLOCKING, HeightMap.MOTION_BLOCKING_NO_LEAVES)
+                .forEach(m -> maps.put(m, new HeightMapWrapper(m)));
+
+        int height, absX, absZ;
+        for (int x = 0; x < 16; x++) {
+            for (int z = 0; z < 16; z++) {
+                absX = chunkX + x; absZ = chunkZ + z;
+
+                height = this.getBaseHeight(worldInfo, random, absX, absZ, HeightMap.WORLD_SURFACE);
+                maps.get(HeightMap.WORLD_SURFACE).set(x, z, height + 64);
+                maps.get(HeightMap.WORLD_SURFACE_WG).set(x, z, height + 64);
+
+                height = this.getBaseHeight(worldInfo, random, absX, absZ, HeightMap.OCEAN_FLOOR);
+                maps.get(HeightMap.OCEAN_FLOOR).set(x, z, height);
+                maps.get(HeightMap.OCEAN_FLOOR_WG).set(x, z, height);
+                maps.get(HeightMap.MOTION_BLOCKING).set(x, z, height);
+
+                height = this.getBaseHeight(worldInfo, random, absX, absZ, HeightMap.MOTION_BLOCKING_NO_LEAVES);
+                maps.get(HeightMap.MOTION_BLOCKING_NO_LEAVES).set(x, z, height);
+            }
+        }
     }
 }

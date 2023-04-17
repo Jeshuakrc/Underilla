@@ -140,8 +140,10 @@ public class RelativeMerger implements Merger {
                 }
             }
 
-            Biome b = chunk.biomeAt(v).orElse(null);
-            if (b == null) { continue; }
+            Biome b = chunk.biomeAtCell(v).orElse(null);
+            if (b == null) {
+                continue;
+            }
             chunkData.setBiome(v.getBlockX(), v.getBlockY(), v.getBlockZ(), b);
         }
     }
