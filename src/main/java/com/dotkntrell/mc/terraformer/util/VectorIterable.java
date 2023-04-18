@@ -22,6 +22,12 @@ public class VectorIterable implements Iterable<Vector>, Iterator<Vector> {
     public VectorIterable(int maxX, int maxY, int maxZ) {
         this(0, maxX, 0, maxY, 0, maxZ);
     }
+    public VectorIterable(Vector maxVector) {
+        this(maxVector.getBlockX(), maxVector.getBlockY(), maxVector.getBlockZ());
+    }
+    public VectorIterable(Vector minVector, Vector maxVector) {
+        this(minVector.getBlockX(), minVector.getBlockY(), minVector.getBlockZ(), maxVector.getBlockX(), maxVector.getBlockY(), maxVector.getBlockZ());
+    }
 
     //OVERWRITES
     @Override

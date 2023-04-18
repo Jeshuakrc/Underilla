@@ -2,7 +2,6 @@ package com.dotkntrell.mc.terraformer.generation;
 
 import com.dotkntrell.mc.terraformer.io.reader.ChunkReader;
 import com.dotkntrell.mc.terraformer.io.reader.LocatedMaterial;
-import com.dotkntrell.mc.terraformer.io.reader.Reader;
 import com.dotkntrell.mc.terraformer.io.reader.WorldReader;
 import com.dotkntrell.mc.terraformer.util.VectorIterable;
 import com.jkantrell.mca.MCAUtil;
@@ -13,9 +12,7 @@ import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.generator.WorldInfo;
 import org.bukkit.util.Vector;
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 public class RelativeMerger implements Merger {
 
@@ -25,15 +22,17 @@ public class RelativeMerger implements Merger {
     //FIELDS
     private final WorldReader worldReader_;
     private final int upperLimit_, lowerLimit_, depth_, blendRange_;
+    private final List<Biome> keptBiomes_;
 
 
     //CONSTRUCTORS
-    RelativeMerger(WorldReader worldReader, int upperLimit, int lowerLimit, int depth, int transitionRange) {
+    RelativeMerger(WorldReader worldReader, int upperLimit, int lowerLimit, int depth, int transitionRange, List<Biome> keptBiomes) {
         this.worldReader_ = worldReader;
         this.upperLimit_ = upperLimit;
         this.lowerLimit_ = lowerLimit;
         this.depth_ = depth;
         this.blendRange_ = transitionRange;
+        this.keptBiomes_ = keptBiomes;
     }
 
 
@@ -80,6 +79,8 @@ public class RelativeMerger implements Merger {
         VectorIterable i = new VectorIterable(minVector.getBlockX(), maxVector.getBlockX(), this.lowerLimit_, airColumn, minVector.getBlockZ(), maxVector.getBlockZ());
         while (i.hasNextColumn()) {
             Vector v = i.nextColumn();
+            fillVectors.add(v);
+            //if (i.hasNext()) { v = i.next(); }
             if (!RelativeMerger.isInChunk(chunkX, chunkZ, v)) { continue; }
             while (!materialGetter.apply(v).isSolid() || this.upperLimit_ < v.getBlockY()) {
                 fillVectors.add(v);
@@ -128,22 +129,17 @@ public class RelativeMerger implements Merger {
 
         //Looping through every cell
         VectorIterable i = new VectorIterable(0, 4, chunkData.getMinHeight() >> 2, chunkData.getMaxHeight() >> 2, 0, 4);
-        outer: for (Vector v : i) {
+        for (Vector v : i) {
+            Biome b;
             if (!spreader.isPresent(v)) {
-                int     cellX = v.getBlockX() << 2,
-                        cellY = v.getBlockY() << 2,
-                        cellZ = v.getBlockZ() << 2;
-                VectorIterable j = new VectorIterable(cellX, cellX + 4, cellY, cellY + 4, cellZ, cellZ + 4);
-                for (Vector subV : j) {
-                    Material m = chunkData.getType(subV.getBlockX(), subV.getBlockY(), subV.getBlockZ());
-                    if (!m.isSolid()) { continue outer; }
-                }
+                int     x = v.getBlockX() << 2,
+                        y = v.getBlockY() << 2,
+                        z = v.getBlockZ() << 2;
+                b = chunkData.getBiome(x, y, z);
+                if (this.keptBiomes_.contains(b)) { continue; }
             }
-
-            Biome b = chunk.biomeAtCell(v).orElse(null);
-            if (b == null) {
-                continue;
-            }
+            b = chunk.biomeAtCell(v).orElse(null);
+            if (b == null) { continue; }
             chunkData.setBiome(v.getBlockX(), v.getBlockY(), v.getBlockZ(), b);
         }
     }

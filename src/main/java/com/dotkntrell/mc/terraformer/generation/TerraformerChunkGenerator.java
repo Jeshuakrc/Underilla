@@ -27,9 +27,9 @@ public class TerraformerChunkGenerator extends ChunkGenerator {
     //CONSTRUCTORS
     public TerraformerChunkGenerator(WorldReader worldReader) {
         this.worldReader_ = worldReader;
-        this.merger_ = CONFIG.yMergeStrategy.equals(Config.YMergeStrategy.ABSOLUTE)
-                ? new AbsoluteMerger(this.worldReader_, CONFIG.yMergeHeight)
-                : new RelativeMerger(this.worldReader_, CONFIG.yMergeUpperLimit, CONFIG.yMergeLowerLimit, CONFIG.yMergeDepth, CONFIG.yMergeBlendRange);
+        this.merger_ = CONFIG.mergeStrategy.equals(Config.MergeStrategy.RELATIVE)
+                ? new RelativeMerger(this.worldReader_, CONFIG.mergeUpperLimit, CONFIG.mergeLowerLimit, CONFIG.mergeDepth, CONFIG.mergeBlendRange, CONFIG.keepUndergroundBiomes)
+                : new AbsoluteMerger(this.worldReader_, CONFIG.mergeStrategy.equals(Config.MergeStrategy.NONE) ? -64 : CONFIG.mergeLimit);
     }
 
     @Override
@@ -65,20 +65,20 @@ public class TerraformerChunkGenerator extends ChunkGenerator {
 
     @Override
     public boolean shouldGenerateNoise(WorldInfo worldInfo, Random random, int chunkX, int chunkZ) {
-        if ( CONFIG.yMergeEnabled ) { return true; }
-        return this.worldReader_.readChunk(chunkX, chunkZ).isEmpty();
+        return !CONFIG.mergeStrategy .equals(Config.MergeStrategy.NONE);
     }
 
 
     @Override
     public boolean shouldGenerateSurface(WorldInfo worldInfo, Random random, int chunkX, int chunkZ) {
-        return this.worldReader_.readChunk(chunkX,chunkZ).isEmpty();
+        //Must always return true, bedrock and deepslate layers are generated in this step
+        return true;
     }
 
 
     @Override
     public boolean shouldGenerateCaves(WorldInfo worldInfo, Random random, int chunkX, int chunkZ) {
-        return true;
+        return CONFIG.generateCaves;
     }
 
     @Override
@@ -95,7 +95,6 @@ public class TerraformerChunkGenerator extends ChunkGenerator {
     public boolean shouldGenerateStructures(WorldInfo worldInfo, Random random, int chunkX, int chunkZ) {
         return true;
     }
-
 
     private void setHeightMap(WorldInfo worldInfo, Random random, int chunkX, int chunkZ, AugmentedChunkData chunkData) {
         Map<HeightMap, HeightMapWrapper> maps = new HashMap<>();

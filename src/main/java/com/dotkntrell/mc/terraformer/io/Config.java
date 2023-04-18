@@ -2,6 +2,9 @@ package com.dotkntrell.mc.terraformer.io;
 
 import com.jkantrell.yamlizer.yaml.AbstractYamlConfig;
 import com.jkantrell.yamlizer.yaml.ConfigField;
+import org.bukkit.block.Biome;
+
+import java.util.List;
 
 public class Config extends AbstractYamlConfig {
 
@@ -11,33 +14,36 @@ public class Config extends AbstractYamlConfig {
     }
 
     //ASSETS
-    public enum YMergeStrategy { ABSOLUTE, RELATIVE }
+    public enum MergeStrategy { ABSOLUTE, RELATIVE, NONE }
 
     //FIELDS
     @ConfigField(path = "reference_world")
     public String referenceWorldName = "backup";
 
-    @ConfigField(path = "generate_caves")
+    @ConfigField(path = "generate_noodle_caves")
     public Boolean generateCaves = true;
 
-    @ConfigField(path = "y_merge.enabled")
-    public Boolean yMergeEnabled = false;
+    @ConfigField(path = "strategy")
+    public MergeStrategy mergeStrategy = MergeStrategy.ABSOLUTE;
 
-    @ConfigField(path = "y_merge.strategy")
-    public YMergeStrategy yMergeStrategy = YMergeStrategy.ABSOLUTE;
+    @ConfigField(path = "relative.upper_limit")
+    public int mergeUpperLimit = 320;
 
-    @ConfigField(path = "y_merge.relative.upper_limit")
-    public int yMergeUpperLimit = 320;
+    @ConfigField(path = "relative.lower_limit")
+    public int mergeLowerLimit = -64;
 
-    @ConfigField(path = "y_merge.relative.lower_limit")
-    public int yMergeLowerLimit = -64;
+    @ConfigField(path = "relative.lower_limit")
+    public int mergeHeight = 22;
 
-    @ConfigField(path = "y_merge.relative.depth")
-    public int yMergeDepth = 12;
+    @ConfigField(path = "relative.depth")
+    public int mergeDepth = 12;
 
-    @ConfigField(path = "y_merge.relative.lower_limit")
-    public int yMergeHeight = 22;
+    @ConfigField(path = "relative.keep_underground_biomes")
+    public List<Biome> keepUndergroundBiomes = List.of(Biome.DEEP_DARK, Biome.DRIPSTONE_CAVES, Biome.LUSH_CAVES);
 
-    @ConfigField(path = "y_merge.blend_range")
-    public int yMergeBlendRange = 8;
+    @ConfigField(path = "absolute.limit")
+    public int mergeLimit = 22;
+
+    @ConfigField(path = "blend_range")
+    public int mergeBlendRange = 8;
 }
