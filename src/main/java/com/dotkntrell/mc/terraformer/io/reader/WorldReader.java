@@ -94,6 +94,7 @@ public class WorldReader implements Reader {
         MCAFile region = this.regionCache_.get(x, z);
         if (region != null) { return region; }
         File regionFile = new File(this.regions_, "r." + x + "." + z + ".mca");
+        if (!regionFile.exists()) { return null; }
         try {
             region = MCAUtil.read(regionFile);
             this.regionCache_.put(x, z, region);
