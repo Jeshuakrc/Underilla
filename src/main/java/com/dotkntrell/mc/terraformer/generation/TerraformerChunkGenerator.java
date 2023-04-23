@@ -69,25 +69,8 @@ public class TerraformerChunkGenerator extends ChunkGenerator {
 
     @Override
     public List<BlockPopulator> getDefaultPopulators(World world) {
-        return List.of(new CustomPopulator(this.worldReader_));
-    }
-
-    @Override
-    public void generateCaves(WorldInfo worldInfo, Random random, int chunkX, int chunkZ, ChunkData chunkData) {
         //Caves are vanilla generated, but they are carved underwater, this re-places the water blocks in case they were carved into.
-
-        //If cave generation is off, then do nothing
-        if (!CONFIG.generateCaves) { return; }
-
-        //Getting chunkReader. If not found, do nothing
-        ChunkReader reader = this.worldReader_.readChunk(chunkX, chunkZ).orElse(null);
-        if (reader == null) { return; }
-
-        //Getting watter and lava blocks in the chunk
-        List<LocatedMaterial> locations = reader.locationsOf(Material.WATER, Material.LAVA);
-
-        //Placing them back
-        locations.forEach(l -> chunkData.setBlock(l.x(), l.y(), l.z(), l.material()));
+        return List.of(new CustomPopulator(this.worldReader_));
     }
 
     @Override
@@ -164,6 +147,7 @@ public class TerraformerChunkGenerator extends ChunkGenerator {
 
         //OVERWRITES
         @Override public void populate(WorldInfo worldInfo, Random random, int chunkX, int chunkZ, LimitedRegion limitedRegion) {
+            if (!CONFIG.generateCaves) { return; }
             ChunkReader reader = this.worldReader_.readChunk(chunkX, chunkZ).orElse(null);
             if (reader == null) { return; }
             CustomPopulator.reInsertLiquids(reader, limitedRegion);
