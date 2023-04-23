@@ -23,7 +23,7 @@ relative:
   # No effect if <= -64
   lower_limit: -64
   # How deep reference world terrain should dig into vanilla word.
-  depth: 12
+  depth: 6
   # Which biomes keep in vanilla underground while overwriting reference world biomes.
   # Any biome not it this list will be replaced during generation.
   # Biomes must be defined as spigot Biome enum constants. https://hub.spigotmc.org/javadocs/spigot/org/bukkit/block/Biome.html

@@ -7,6 +7,8 @@ import com.dotkntrell.mc.underilla.io.reader.LocatedMaterial;
 import com.dotkntrell.mc.underilla.io.reader.WorldReader;
 import com.jkantrell.mca.MCAUtil;
 import org.bukkit.*;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Waterlogged;
 import org.bukkit.craftbukkit.v1_19_R3.generator.CraftChunkData;
 import org.bukkit.generator.BlockPopulator;
 import org.bukkit.generator.ChunkGenerator;
@@ -164,7 +166,16 @@ public class UnderillaChunkGenerator extends ChunkGenerator {
             locations.forEach(l -> {
                 int     x = absX + l.x(),
                         z = absZ + l.z();
-                region.setType(x, l.y(), z, l.material());
+                BlockData d = region.getBlockData(x, l.y(), z);
+                if (d.getMaterial().isAir()) {
+                    region.setType(x, l.y(), z, l.material());
+                    return;
+                }
+                if (!l.material().equals(Material.WATER)) { return; }
+                if (d instanceof Waterlogged waterlogged) {
+                    waterlogged.setWaterlogged(true);
+                    region.setBlockData(x, l.y(), z, waterlogged);
+                }
             });
         }
     }
