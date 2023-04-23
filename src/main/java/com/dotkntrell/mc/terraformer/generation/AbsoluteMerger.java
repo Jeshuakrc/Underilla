@@ -4,6 +4,7 @@ import com.dotkntrell.mc.terraformer.io.reader.ChunkReader;
 import com.dotkntrell.mc.terraformer.io.reader.WorldReader;
 import com.dotkntrell.mc.terraformer.util.VectorIterable;
 import org.bukkit.Material;
+import org.bukkit.block.Biome;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.generator.WorldInfo;
 import org.bukkit.util.Vector;
@@ -42,7 +43,17 @@ class AbsoluteMerger implements Merger {
 
     @Override
     public void mergeBiomes(WorldInfo worldInfo, Random random, int chunkX, int chunkZ, AugmentedChunkData chunkData) {
+        //Extracting chunk
+        ChunkReader chunk = this.worldReader_.readChunk(chunkX,chunkZ).orElse(null);
+        if (chunk == null) { return; }
 
+        //Setting
+        VectorIterable iterable = new VectorIterable(0, 4, this.height_ << 2, chunkData.getMaxHeight() << 2, 0, 4);
+        for (Vector v : iterable) {
+            Biome biome = chunk.biomeAtCell(v).orElse(null);
+            if (biome == null) { continue; }
+            chunkData.setBiome(v.getBlockX(), v.getBlockY(), v.getBlockZ(), biome);
+        }
     }
 
 
