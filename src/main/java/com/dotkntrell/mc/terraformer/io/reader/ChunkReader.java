@@ -129,6 +129,10 @@ public class ChunkReader implements Reader {
     public List<LocatedMaterial> locationsOf(Material material) {
         return this.locationsOf(material::equals);
     }
+    public List<LocatedMaterial> locationsOf(Material... materials) {
+        List<Material> materialList = Arrays.asList(materials);
+        return this.locationsOf(materialList::contains);
+    }
 
 
     //PRIVATE UTIL

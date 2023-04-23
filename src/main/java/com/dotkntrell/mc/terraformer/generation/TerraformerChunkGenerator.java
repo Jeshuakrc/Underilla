@@ -3,11 +3,14 @@ package com.dotkntrell.mc.terraformer.generation;
 import com.dotkntrell.mc.terraformer.Terraformer;
 import com.dotkntrell.mc.terraformer.io.Config;
 import com.dotkntrell.mc.terraformer.io.reader.ChunkReader;
+import com.dotkntrell.mc.terraformer.io.reader.LocatedMaterial;
 import com.dotkntrell.mc.terraformer.io.reader.WorldReader;
 import com.jkantrell.mca.MCAUtil;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_19_R3.generator.CraftChunkData;
+import org.bukkit.generator.BlockPopulator;
 import org.bukkit.generator.ChunkGenerator;
+import org.bukkit.generator.LimitedRegion;
 import org.bukkit.generator.WorldInfo;
 import java.util.*;
 import java.util.function.Predicate;
@@ -61,7 +64,30 @@ public class TerraformerChunkGenerator extends ChunkGenerator {
         AugmentedChunkData augmentedChunkData = new AugmentedChunkData((CraftChunkData) chunkData);
         this.merger_.mergeLand(worldInfo, random, chunkX, chunkZ, augmentedChunkData);
         this.merger_.mergeBiomes(worldInfo, random, chunkX, chunkZ, augmentedChunkData);
-        return;
+    }
+
+
+    @Override
+    public List<BlockPopulator> getDefaultPopulators(World world) {
+        return List.of(new CustomPopulator(this.worldReader_));
+    }
+
+    @Override
+    public void generateCaves(WorldInfo worldInfo, Random random, int chunkX, int chunkZ, ChunkData chunkData) {
+        //Caves are vanilla generated, but they are carved underwater, this re-places the water blocks in case they were carved into.
+
+        //If cave generation is off, then do nothing
+        if (!CONFIG.generateCaves) { return; }
+
+        //Getting chunkReader. If not found, do nothing
+        ChunkReader reader = this.worldReader_.readChunk(chunkX, chunkZ).orElse(null);
+        if (reader == null) { return; }
+
+        //Getting watter and lava blocks in the chunk
+        List<LocatedMaterial> locations = reader.locationsOf(Material.WATER, Material.LAVA);
+
+        //Placing them back
+        locations.forEach(l -> chunkData.setBlock(l.x(), l.y(), l.z(), l.material()));
     }
 
     @Override
@@ -119,6 +145,43 @@ public class TerraformerChunkGenerator extends ChunkGenerator {
                 height = this.getBaseHeight(worldInfo, random, absX, absZ, HeightMap.MOTION_BLOCKING_NO_LEAVES);
                 maps.get(HeightMap.MOTION_BLOCKING_NO_LEAVES).set(x, z, height);
             }
+        }
+    }
+
+
+    //CLASSES
+    private static class CustomPopulator extends BlockPopulator {
+
+        //FIELDS
+        private final WorldReader worldReader_;
+
+
+        //CONSTRUCTORS
+        public CustomPopulator(WorldReader reader) {
+            this.worldReader_ = reader;
+        }
+
+
+        //OVERWRITES
+        @Override public void populate(WorldInfo worldInfo, Random random, int chunkX, int chunkZ, LimitedRegion limitedRegion) {
+            ChunkReader reader = this.worldReader_.readChunk(chunkX, chunkZ).orElse(null);
+            if (reader == null) { return; }
+            CustomPopulator.reInsertLiquids(reader, limitedRegion);
+        }
+
+
+        //PRIVATE UTIL
+        private static void reInsertLiquids(ChunkReader reader, LimitedRegion region) {
+            //Getting watter and lava blocks in the chunk
+            List<LocatedMaterial> locations = reader.locationsOf(Material.WATER, Material.LAVA);
+
+            //Placing them back
+            int absX = reader.getX() * 16, absZ = reader.getZ() * 16;
+            locations.forEach(l -> {
+                int     x = absX + l.x(),
+                        z = absZ + l.z();
+                region.setType(x, l.y(), z, l.material());
+            });
         }
     }
 }
