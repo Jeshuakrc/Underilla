@@ -12,7 +12,7 @@ overwrite_biomes: true
 #   - ABSOLUTE: At a fixed Y height.
 #   - RELATIVE: At a given depth based on terrain height and air pockets at every X and Z coordinates.
 #   - NONE: Just... don't merge. Reference world will be re-generated without vanilla underground.
-strategy: "ABSOLUTE"
+strategy: "RELATIVE"
 
 # RELATIVE strategy exclusive settings
 relative:

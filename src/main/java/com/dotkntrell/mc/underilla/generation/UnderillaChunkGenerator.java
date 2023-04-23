@@ -1,10 +1,10 @@
-package com.dotkntrell.mc.terraformer.generation;
+package com.dotkntrell.mc.underilla.generation;
 
-import com.dotkntrell.mc.terraformer.Terraformer;
-import com.dotkntrell.mc.terraformer.io.Config;
-import com.dotkntrell.mc.terraformer.io.reader.ChunkReader;
-import com.dotkntrell.mc.terraformer.io.reader.LocatedMaterial;
-import com.dotkntrell.mc.terraformer.io.reader.WorldReader;
+import com.dotkntrell.mc.underilla.Underilla;
+import com.dotkntrell.mc.underilla.io.Config;
+import com.dotkntrell.mc.underilla.io.reader.ChunkReader;
+import com.dotkntrell.mc.underilla.io.reader.LocatedMaterial;
+import com.dotkntrell.mc.underilla.io.reader.WorldReader;
 import com.jkantrell.mca.MCAUtil;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_19_R3.generator.CraftChunkData;
@@ -16,10 +16,10 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-public class TerraformerChunkGenerator extends ChunkGenerator {
+public class UnderillaChunkGenerator extends ChunkGenerator {
 
     //ASSETS
-    private final static Config CONFIG = Terraformer.CONFIG;
+    private final static Config CONFIG = Underilla.CONFIG;
 
 
     //FIELDS
@@ -28,7 +28,7 @@ public class TerraformerChunkGenerator extends ChunkGenerator {
 
 
     //CONSTRUCTORS
-    public TerraformerChunkGenerator(WorldReader worldReader) {
+    public UnderillaChunkGenerator(WorldReader worldReader) {
         this.worldReader_ = worldReader;
         this.merger_ = CONFIG.mergeStrategy.equals(Config.MergeStrategy.RELATIVE)
                 ? new RelativeMerger(this.worldReader_, CONFIG.mergeUpperLimit, CONFIG.mergeLowerLimit, CONFIG.mergeDepth, CONFIG.mergeBlendRange, CONFIG.keepUndergroundBiomes)
@@ -70,7 +70,7 @@ public class TerraformerChunkGenerator extends ChunkGenerator {
     @Override
     public List<BlockPopulator> getDefaultPopulators(World world) {
         //Caves are vanilla generated, but they are carved underwater, this re-places the water blocks in case they were carved into.
-        return List.of(new CustomPopulator(this.worldReader_));
+        return List.of(new Populator(this.worldReader_));
     }
 
     @Override
@@ -133,14 +133,14 @@ public class TerraformerChunkGenerator extends ChunkGenerator {
 
 
     //CLASSES
-    private static class CustomPopulator extends BlockPopulator {
+    private static class Populator extends BlockPopulator {
 
         //FIELDS
         private final WorldReader worldReader_;
 
 
         //CONSTRUCTORS
-        public CustomPopulator(WorldReader reader) {
+        public Populator(WorldReader reader) {
             this.worldReader_ = reader;
         }
 
@@ -150,7 +150,7 @@ public class TerraformerChunkGenerator extends ChunkGenerator {
             if (!CONFIG.generateCaves) { return; }
             ChunkReader reader = this.worldReader_.readChunk(chunkX, chunkZ).orElse(null);
             if (reader == null) { return; }
-            CustomPopulator.reInsertLiquids(reader, limitedRegion);
+            Populator.reInsertLiquids(reader, limitedRegion);
         }
 
 

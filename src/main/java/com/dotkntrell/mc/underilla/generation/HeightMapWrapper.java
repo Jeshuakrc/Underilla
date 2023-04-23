@@ -1,4 +1,4 @@
-package com.dotkntrell.mc.terraformer.generation;
+package com.dotkntrell.mc.underilla.generation;
 
 import com.jkantrell.mca.BinaryMap;
 import org.bukkit.HeightMap;

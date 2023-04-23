@@ -1,6 +1,5 @@
-package com.dotkntrell.mc.terraformer.generation;
+package com.dotkntrell.mc.underilla.generation;
 
-import com.dotkntrell.mc.terraformer.io.reader.ChunkReader;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.generator.WorldInfo;
 import java.util.Random;
