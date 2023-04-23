@@ -8,6 +8,7 @@ import com.jkantrell.mca.MCAUtil;
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.generator.WorldInfo;
 import org.bukkit.util.Vector;
@@ -98,9 +99,9 @@ public class RelativeMerger implements Merger {
                 //Placing base-world blocks over valina world
                 .forEach(v -> {
                     v = RelativeMerger.relativeCoordinates(v);
-                    Material m = chunk.materialAt(v).orElse(null);
-                    if (m == null) { return; }
-                    chunkData.setBlock(v.getBlockX(), v.getBlockY(), v.getBlockZ(), m);
+                    BlockData d = chunk.blockAt(v).orElse(null);
+                    if (d == null) { return; }
+                    chunkData.setBlock(v.getBlockX(), v.getBlockY(), v.getBlockZ(), d);
                 });
 
     }
@@ -124,7 +125,8 @@ public class RelativeMerger implements Merger {
         //Using a spreader to map cells in a 3D grid
         Spreader spreader = new Spreader()
                 .setContainer(0, chunkData.getMinHeight() >> 2, 0, 3, (chunkData.getMaxHeight() >> 2) - 1, 3)
-                .setRootVectors(cells);
+                .setRootVectors(cells)
+                .setIterationsAmount(1);
         spreader.spread();
 
         //Looping through every cell

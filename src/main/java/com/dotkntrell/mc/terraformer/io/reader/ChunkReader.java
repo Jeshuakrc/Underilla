@@ -3,18 +3,13 @@ package com.dotkntrell.mc.terraformer.io.reader;
 import com.jkantrell.mca.Chunk;
 import com.jkantrell.mca.MCAUtil;
 import com.jkantrell.mca.Section;
-import com.jkantrell.nbt.tag.CompoundTag;
-import com.jkantrell.nbt.tag.StringTag;
-import com.jkantrell.nbt.tag.Tag;
+import com.jkantrell.nbt.tag.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.block.Biome;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.util.Vector;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -47,6 +42,14 @@ public class ChunkReader implements Reader {
 
 
     //UTIL
+    @Override
+    public Optional<BlockData> blockAt(int x, int y, int z) {
+        if (this.chunk_ == null) { return Optional.empty(); }
+        CompoundTag tag = this.chunk_.getBlockStateAt(x, y, z);
+        Optional<Material> material = ChunkReader.materialFromTag(tag);
+        if (material.isEmpty()) { return Optional.empty(); }
+        return Optional.of(ChunkReader.blockDataFromTag(material.get(), tag));
+    }
     @Override
     public Optional<Material> materialAt(int x, int y, int z) {
         if (this.chunk_ == null) { return Optional.empty(); }
@@ -127,6 +130,7 @@ public class ChunkReader implements Reader {
         return this.locationsOf(material::equals);
     }
 
+
     //PRIVATE UTIL
     private List<LocatedMaterial> locationsOf(Predicate<Material> checker, Predicate<LocatedMaterial> secondChecker, Stream<Section> sections) {
         return sections
@@ -159,5 +163,11 @@ public class ChunkReader implements Reader {
             Bukkit.getLogger().warning("Could not resolve biome '" + name + "'");
             return Optional.empty();
         }
+    }
+    private static BlockData blockDataFromTag(Material material, CompoundTag tag) {
+        CompoundTag properties = tag.getCompoundTag("Properties");
+        if (properties == null) { return material.createBlockData(); }
+        String dataString = TagInterpreter.COMPOUND.interpretBlockDataString(properties);
+        return material.createBlockData(dataString);
     }
 }

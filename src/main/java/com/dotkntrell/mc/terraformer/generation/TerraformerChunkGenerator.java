@@ -43,7 +43,7 @@ public class TerraformerChunkGenerator extends ChunkGenerator {
             case OCEAN_FLOOR, OCEAN_FLOOR_WG, MOTION_BLOCKING -> Material::isSolid;
             case MOTION_BLOCKING_NO_LEAVES -> m -> m.isSolid() || m.toString().contains("LEAVES");
         };
-        int y = worldInfo.getMaxHeight();
+        int y = chunkReader.get().airColumnBottomHeight();
         Material m;
         do {
             y--;
@@ -61,6 +61,7 @@ public class TerraformerChunkGenerator extends ChunkGenerator {
         AugmentedChunkData augmentedChunkData = new AugmentedChunkData((CraftChunkData) chunkData);
         this.merger_.mergeLand(worldInfo, random, chunkX, chunkZ, augmentedChunkData);
         this.merger_.mergeBiomes(worldInfo, random, chunkX, chunkZ, augmentedChunkData);
+        return;
     }
 
     @Override
