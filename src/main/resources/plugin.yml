@@ -1,4 +1,5 @@
-name: Terraformer
+name: Underilla
 version: '${project.version}'
-main: com.dotkntrell.mc.terraformer.Terraformer
+main: com.dotkntrell.mc.underilla.Underilla
 api-version: 1.19
+load: STARTUP
