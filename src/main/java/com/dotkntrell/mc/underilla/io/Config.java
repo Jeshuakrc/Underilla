@@ -23,17 +23,20 @@ public class Config extends AbstractYamlConfig {
     @ConfigField(path = "generate_noodle_caves")
     public Boolean generateCaves = true;
 
+    @ConfigField(path = "vanilla_population")
+    public Boolean vanillaPopulation = true;
+
+    @ConfigField(path = "transfer_biomes")
+    public Boolean transferBiomes = true;
+
     @ConfigField(path = "strategy")
-    public MergeStrategy mergeStrategy = MergeStrategy.ABSOLUTE;
+    public MergeStrategy mergeStrategy = MergeStrategy.RELATIVE;
 
     @ConfigField(path = "relative.upper_limit")
     public int mergeUpperLimit = 320;
 
     @ConfigField(path = "relative.lower_limit")
     public int mergeLowerLimit = -64;
-
-    @ConfigField(path = "relative.lower_limit")
-    public int mergeHeight = 22;
 
     @ConfigField(path = "relative.depth")
     public int mergeDepth = 12;

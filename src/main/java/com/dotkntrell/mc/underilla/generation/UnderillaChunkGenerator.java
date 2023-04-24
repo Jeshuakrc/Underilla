@@ -65,7 +65,9 @@ public class UnderillaChunkGenerator extends ChunkGenerator {
         Bukkit.getLogger().info("Generating chunk [" + chunkX + " - " + chunkZ + "] from " + this.worldReader_.getWorldName() + ".");
         AugmentedChunkData augmentedChunkData = new AugmentedChunkData((CraftChunkData) chunkData);
         this.merger_.mergeLand(worldInfo, random, chunkX, chunkZ, augmentedChunkData);
-        this.merger_.mergeBiomes(worldInfo, random, chunkX, chunkZ, augmentedChunkData);
+        if (CONFIG.transferBiomes) {
+            this.merger_.mergeBiomes(worldInfo, random, chunkX, chunkZ, augmentedChunkData);
+        }
     }
 
 
@@ -95,7 +97,7 @@ public class UnderillaChunkGenerator extends ChunkGenerator {
 
     @Override
     public boolean shouldGenerateDecorations(WorldInfo worldInfo, Random random, int chunkX, int chunkZ) {
-        return true;
+        return CONFIG.vanillaPopulation;
     }
 
     @Override
@@ -105,7 +107,7 @@ public class UnderillaChunkGenerator extends ChunkGenerator {
 
     @Override
     public boolean shouldGenerateStructures(WorldInfo worldInfo, Random random, int chunkX, int chunkZ) {
-        return true;
+        return CONFIG.vanillaPopulation;
     }
 
     private void setHeightMap(WorldInfo worldInfo, Random random, int chunkX, int chunkZ, AugmentedChunkData chunkData) {
