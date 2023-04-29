@@ -1,5 +1,6 @@
 # User-specific stuff
 .idea/
+/*/.idea/
 
 *.iml
 *.ipr
@@ -111,3 +112,7 @@ buildNumber.properties
 
 # Common working directory
 run/
+
+# Gradle
+/*/.gradle/
+/*/build/

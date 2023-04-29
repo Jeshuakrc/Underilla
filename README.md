@@ -27,7 +27,7 @@ Underilla is currently only implemented as a Spigot plugin, so it runs only on S
 1. Set up your Spigot server.
 2. Download Underilla's `.jar`.
 3. Place Underilla's `.jar` file into the `./plugins` directory of your server. Create the folder if it doesn't exist already.
-4. Into the `./plugins` folder, create a new folder called `Underilla` and place a `config.yml` file in it. You may get the file from [this repo](./src/main/resources/config.yml).
+4. Into the `./plugins` folder, create a new folder called `Underilla` and place a `config.yml` file in it. You may get the file from [this repo](Underilla-Spigot/src/main/resources/config.yml).
 5. Open the `bukkit.yml`file in your server's root and add the following lines on top:
    ```
    worlds:
