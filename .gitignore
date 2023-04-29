@@ -114,5 +114,6 @@ buildNumber.properties
 run/
 
 # Gradle
+.gradle/
 /*/.gradle/
 /*/build/
