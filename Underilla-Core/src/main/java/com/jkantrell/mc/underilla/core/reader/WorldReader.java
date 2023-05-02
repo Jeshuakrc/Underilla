@@ -7,10 +7,6 @@ import com.jkantrell.mca.MCAFile;
 import com.jkantrell.mca.MCAUtil;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.bukkit.Material;
-import org.bukkit.block.Biome;
-import org.bukkit.block.data.BlockData;
-
 import java.io.File;
 import java.util.*;
 
@@ -110,18 +106,20 @@ public abstract class WorldReader implements Reader {
     private static class RLUCache<T> {
 
         //FIELDS
-        private final Map<Pair, T> map_ = new HashMap<>();
-        private final Deque<Pair> queue_ = new LinkedList<>();
+        private final Map<Pair<Integer, Integer>, T> map_ = new HashMap<>();
+        private final Deque<Pair<Integer, Integer>> queue_ = new LinkedList<>();
         private final int capacity_;
+
 
         //CONSTRUCTOR
         RLUCache(int capacity) {
             this.capacity_ = capacity;
         }
 
+
         //UTIL
         T get(int x, int z) {
-            Pair pair = new Pair(x, z);
+            Pair<Integer, Integer> pair = ImmutablePair.of(x, z);
             T cached = this.map_.get(pair);
             if (cached == null) { return null; }
             this.queue_.remove(pair);
@@ -129,37 +127,17 @@ public abstract class WorldReader implements Reader {
             return cached;
         }
         void put(int x, int z, T file) {
-            Pair pair = new Pair(x,z);
+            Pair<Integer, Integer> pair = ImmutablePair.of(x,z);
             if (map_.containsKey(pair)) {
                 this.queue_.remove(pair);
             } else if (this.queue_.size() >= this.capacity_) {
                 try {
-                    Pair temp = this.queue_.removeLast();
+                    Pair<Integer, Integer> temp = this.queue_.removeLast();
                     this.map_.remove(temp);
                 } catch (NoSuchElementException ignored) {}
             }
             this.map_.put(pair, file);
             this.queue_.addFirst(pair);
-        }
-
-        //CLASSES
-        private static class Pair {
-
-            //FIELDS
-            private final int a_, b_;
-
-            //CONSTRUCTORS
-            Pair(int a, int b) {
-                this.a_ = a; this.b_ = b;
-            }
-
-            //UTIL
-            @Override public boolean equals(Object o) {
-                if (o == null) { return false; }
-                if (this == o) { return true; }
-                if (!(o instanceof Pair pair)) { return false; }
-                return (this.a_ == pair.a_) && (this.b_ == pair.b_);
-            }
         }
     }
 }

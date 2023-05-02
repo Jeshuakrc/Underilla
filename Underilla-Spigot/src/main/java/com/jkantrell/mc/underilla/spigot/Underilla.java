@@ -1,8 +1,8 @@
-package com.dotkntrell.mc.underilla.spigot;
+package com.jkantrell.mc.underilla.spigot;
 
-import com.dotkntrell.mc.underilla.spigot.generation.UnderillaChunkGenerator;
-import com.dotkntrell.mc.underilla.spigot.io.Config;
-import com.dotkntrell.mc.underilla.spigot.io.reader.WorldReader;
+import com.jkantrell.mc.underilla.spigot.generation.UnderillaChunkGenerator;
+import com.jkantrell.mc.underilla.spigot.io.Config;
+import com.jkantrell.mc.underilla.spigot.impl.BukkitWorldReader;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.java.JavaPlugin;
 import java.io.File;
@@ -11,7 +11,7 @@ import java.io.FileNotFoundException;
 public final class Underilla extends JavaPlugin {
 
     public static final Config CONFIG = new Config("");
-    private WorldReader worldReader_ = null;
+    private BukkitWorldReader worldReader_ = null;
 
     @Override
     public ChunkGenerator getDefaultWorldGenerator(String worldName, String id) {
@@ -38,7 +38,7 @@ public final class Underilla extends JavaPlugin {
 
         //Loading world
         try {
-            this.worldReader_ = new WorldReader(Underilla.CONFIG.referenceWorldName);
+            this.worldReader_ = new BukkitWorldReader(Underilla.CONFIG.referenceWorldName);
             this.getServer().getLogger().info("World + '" + Underilla.CONFIG.referenceWorldName + "' found.");
         } catch (NoSuchFieldException e) {
             e.printStackTrace();

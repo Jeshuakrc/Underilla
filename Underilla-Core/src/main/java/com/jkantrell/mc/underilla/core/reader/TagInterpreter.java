@@ -5,7 +5,7 @@ import com.jkantrell.nbt.tag.*;
 import java.util.Map;
 import java.util.StringJoiner;
 
-abstract class TagInterpreter<T extends Tag<?>> {
+public abstract class TagInterpreter<T extends Tag<?>> {
 
     //CONSTANTS
     public static final TagInterpreter<ByteTag> BYTE = new TagInterpreter<>() {};
@@ -16,7 +16,7 @@ abstract class TagInterpreter<T extends Tag<?>> {
     public static final TagInterpreter<DoubleTag> DOUBLE = new TagInterpreter<>() {};
     public static final TagInterpreter<StringTag> STRING = new TagInterpreter<>() {
         @Override
-        String interpretBlockDataString(StringTag tag) {
+        public String interpretBlockDataString(StringTag tag) {
             return tag.getValue();
         }
     };
@@ -24,7 +24,8 @@ abstract class TagInterpreter<T extends Tag<?>> {
     public static final TagInterpreter<IntArrayTag> INT_ARRAY = new TagInterpreter<>() {};
     public static final TagInterpreter<LongArrayTag> LONG_ARRAY = new TagInterpreter<>() { };
     public static final TagInterpreter<CompoundTag> COMPOUND = new TagInterpreter<>() {
-        @Override String interpretBlockDataString(CompoundTag tag) {
+        @Override
+        public String interpretBlockDataString(CompoundTag tag) {
             StringJoiner string = new StringJoiner(",", "[", "]");
             tag.forEach((n, t) -> {
                 TagInterpreter interpreter = TagInterpreter.fromClass(t.getClass());
@@ -60,7 +61,7 @@ abstract class TagInterpreter<T extends Tag<?>> {
 
 
     //UTIL
-    String interpretBlockDataString(T tag) {
+    public String interpretBlockDataString(T tag) {
         return tag.valueToString();
     }
 }

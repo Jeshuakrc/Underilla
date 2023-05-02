@@ -5,7 +5,6 @@ import com.jkantrell.mc.underilla.core.api.Block;
 import com.jkantrell.mc.underilla.core.api.ChunkData;
 import com.jkantrell.mc.underilla.core.reader.ChunkReader;
 import com.jkantrell.mc.underilla.core.reader.WorldReader;
-import com.jkantrell.mc.underilla.core.util.UnderillaUtils;
 import com.jkantrell.mc.underilla.core.vector.*;
 import com.jkantrell.mca.MCAUtil;
 import java.util.ArrayList;
@@ -22,11 +21,11 @@ public class RelativeMerger implements Merger {
     //FIELDS
     private final WorldReader worldReader_;
     private final int upperLimit_, lowerLimit_, depth_, blendRange_;
-    private final List<Biome> keptBiomes_;
+    private final List<? extends Biome> keptBiomes_;
 
 
     //CONSTRUCTORS
-    RelativeMerger(WorldReader worldReader, int upperLimit, int lowerLimit, int depth, int transitionRange, List<Biome> keptBiomes) {
+    RelativeMerger(WorldReader worldReader, int upperLimit, int lowerLimit, int depth, int transitionRange, List<? extends Biome> keptBiomes) {
         this.worldReader_ = worldReader;
         this.upperLimit_ = upperLimit;
         this.lowerLimit_ = lowerLimit;
@@ -38,28 +37,25 @@ public class RelativeMerger implements Merger {
 
     //OVERWRITES
     @Override
-    public void merge(int chunkX, int chunkZ, ChunkData chunkData) {
-        this.mergeLand(chunkX, chunkZ, chunkData);
-        this.mergeBiomes(chunkX, chunkZ, chunkData);
+    public void merge(ChunkReader reader, ChunkData chunkData) {
+        this.mergeLand(reader, chunkData);
+        this.mergeBiomes(reader, chunkData);
     }
     @Override
-    public void mergeLand(int chunkX, int chunkZ, ChunkData chunkData) {
-
-        //Extracting chunk
-        ChunkReader chunk = this.worldReader_.readChunk(chunkX,chunkZ).orElse(null);
-        if (chunk == null) { return; }
+    public void mergeLand(ChunkReader reader, ChunkData chunkData) {
 
         //Getting rid of top air column (KEY FOR PERFORMANCE)
-        int airColumn = Math.max(chunk.airSectionsBottom(), this.lowerLimit_);
-        Block airBlock = chunk.blockFromTag(UnderillaUtils.airBlockTag()).get();
+        int airColumn = Math.max(reader.airSectionsBottom(), this.lowerLimit_);
+        Block airBlock = reader.blockFromTag(MCAUtil.airBlockTag()).get();
         chunkData.setRegion(0, airColumn, 0, 16, chunkData.getMaxHeight(), 16, airBlock);
 
         //Getting all surrounding chunks from the base world
         List<ChunkReader> chunks = new ArrayList<>(9);
+        int chunkX = reader.getX(), chunkZ = reader.getZ();
         for (Direction d : RelativeMerger.DIRECTIONS) {
             this.worldReader_.readChunk(chunkX + d.x(), chunkZ + d.z()).ifPresent(chunks::add);
         }
-        chunks.add(chunk);
+        chunks.add(reader);
 
         //Getting all non solid blocks
         List<Vector<Integer>> fillVectors = new LinkedList<>();
@@ -88,7 +84,7 @@ public class RelativeMerger implements Merger {
             fillVectors.add(v);
             //if (i.hasNext()) { v = i.next(); }
             if (!RelativeMerger.isInChunk(chunkX, chunkZ, v)) { continue; }
-            while (!blockGetter.apply(v).isSolid() || this.upperLimit_ < v.getBlockY()) {
+            while (!blockGetter.apply(v).isSolid() || this.upperLimit_ < v.y()) {
                 fillVectors.add(v);
                 if (!i.hasNextInColumn()) { break; }
                 v = i.next();
@@ -104,20 +100,17 @@ public class RelativeMerger implements Merger {
                 //Placing base-world blocks over valina world
                 .forEach(v -> {
                     v = RelativeMerger.relativeCoordinates(v);
-                    Block b = chunk.blockAt(v).orElse(null);
+                    Block b = reader.blockAt(v).orElse(null);
                     if (b == null) { return; }
                     chunkData.setBlock(v.x(), v.y(), v.z(), b);
                 });
 
     }
     @Override
-    public void mergeBiomes(int chunkX, int chunkZ, ChunkData chunkData) {
-        //Extracting chunk
-        ChunkReader chunk = this.worldReader_.readChunk(chunkX,chunkZ).orElse(null);
-        if (chunk == null) { return; }
+    public void mergeBiomes(ChunkReader reader, ChunkData chunkData) {
 
         //Extracting all non-solid blocks from base chunk, and trunking them into 4x4x4 biome cells.
-        List<Vector<Integer>> cells = chunk.locationsOf(m -> !m.isSolid()).stream()
+        List<Vector<Integer>> cells = reader.locationsOf(m -> !m.isSolid()).stream()
                 .map(LocatedBlock::vector)
                 .peek(v -> {
                     v.setX(v.x() >> 2);
@@ -145,9 +138,9 @@ public class RelativeMerger implements Merger {
                 b = chunkData.getBiome(x, y, z);
                 if (this.keptBiomes_.contains(b)) { continue; }
             }
-            b = chunk.biomeAtCell(v).orElse(null);
+            b = reader.biomeAtCell(v).orElse(null);
             if (b == null) { continue; }
-            chunkData.setBiome(v.x(), v.y(), v.z(), b);
+            chunkData.setBiome(v, b);
         }
     }
 

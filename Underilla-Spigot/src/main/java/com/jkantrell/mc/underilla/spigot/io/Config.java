@@ -1,5 +1,8 @@
-package com.dotkntrell.mc.underilla.spigot.io;
+package com.jkantrell.mc.underilla.spigot.io;
 
+import com.jkantrell.mc.underilla.spigot.impl.BukkitBiome;
+import com.jkantrell.mc.underilla.core.generation.GenerationConfig;
+import com.jkantrell.mc.underilla.core.generation.MergeStrategy;
 import com.jkantrell.yamlizer.yaml.AbstractYamlConfig;
 import com.jkantrell.yamlizer.yaml.ConfigField;
 import org.bukkit.block.Biome;
@@ -13,8 +16,6 @@ public class Config extends AbstractYamlConfig {
         super(filePath);
     }
 
-    //ASSETS
-    public enum MergeStrategy { ABSOLUTE, RELATIVE, NONE }
 
     //FIELDS
     @ConfigField(path = "reference_world")
@@ -49,4 +50,22 @@ public class Config extends AbstractYamlConfig {
 
     @ConfigField(path = "blend_range")
     public int mergeBlendRange = 8;
+
+    public GenerationConfig toGenerationConfig() {
+        GenerationConfig r = new GenerationConfig();
+
+        r.referenceWorldName = this.referenceWorldName;
+        r.generateCaves = this.generateCaves;
+        r.vanillaPopulation = this.vanillaPopulation;
+        r.transferBiomes = this.transferBiomes;
+        r.mergeStrategy = this.mergeStrategy;
+        r.mergeUpperLimit = this.mergeUpperLimit;
+        r.mergeLowerLimit = this.mergeLowerLimit;
+        r.mergeDepth = this.mergeDepth;
+        r.keepUndergroundBiomes = this.keepUndergroundBiomes.stream().map(BukkitBiome::new).toList();
+        r.mergeLimit = this.mergeLimit;
+        r.mergeBlendRange = this.mergeBlendRange;
+
+        return r;
+    }
 }

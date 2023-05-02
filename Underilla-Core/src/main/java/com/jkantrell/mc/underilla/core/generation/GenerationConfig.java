@@ -23,7 +23,7 @@ public class GenerationConfig {
 
     public int mergeDepth = 12;
 
-    public List<Biome> keepUndergroundBiomes = Collections.emptyList();
+    public List<? extends Biome> keepUndergroundBiomes = Collections.emptyList();
 
     public int mergeLimit = 22;
 

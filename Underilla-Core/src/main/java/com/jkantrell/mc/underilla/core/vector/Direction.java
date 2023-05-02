@@ -30,11 +30,11 @@ public enum Direction {
     
     //CONSTRUCTORS
     private Direction(int modX, int modY, int modZ) {
-        this.vector_ = new IntVector(modX, modY, modZ)
+        this.vector_ = new IntVector(modX, modY, modZ);
     }
 
     private Direction(final Direction face1, final Direction face2) {
-        this.vector_ = face1.vector_
+        this.vector_ = (IntVector) face1.vector().add(face2.vector());
     }
 
     

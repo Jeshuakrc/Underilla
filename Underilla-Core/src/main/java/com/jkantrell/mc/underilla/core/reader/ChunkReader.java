@@ -5,6 +5,7 @@ import com.jkantrell.mc.underilla.core.api.Block;
 import com.jkantrell.mc.underilla.core.vector.LocatedBlock;
 import com.jkantrell.mca.Chunk;
 import com.jkantrell.mca.MCAUtil;
+import com.jkantrell.mca.PaletteContainer;
 import com.jkantrell.mca.Section;
 import com.jkantrell.nbt.tag.CompoundTag;
 import com.jkantrell.nbt.tag.StringTag;
@@ -25,7 +26,7 @@ public abstract class ChunkReader implements Reader {
 
 
     //CONSTRUCTORS
-    ChunkReader(Chunk chunk) {
+    public ChunkReader(Chunk chunk) {
         this.chunk_ = chunk;
     }
 
@@ -52,10 +53,14 @@ public abstract class ChunkReader implements Reader {
         Map<Integer, Section> sectionMap = this.chunk_.getSectionMap();
         int height = MCAUtil.blockToChunk(y);
         Section section = sectionMap.get(height);
+        StringTag biomeTag;
 
         //Retuning biome if section exists
         if (section != null) {
-            return this.biomeFromTag(section.getBiomeAt(x, Math.floorMod(y, 16), z));
+            biomeTag = section.getBiomeAt(x, Math.floorMod(y, 16), z);
+            if (biomeTag != null) {
+                return this.biomeFromTag(biomeTag);
+            }
         }
 
         //If sections doesn't exist trying to pull it from the above section
@@ -63,7 +68,10 @@ public abstract class ChunkReader implements Reader {
         while (i < MAXIMUM_SECTION_HEIGHT) {
             section = sectionMap.get(i);
             if (section != null) {
-                return this.biomeFromTag(section.getBiomeAt(x, 0, z));
+                biomeTag = section.getBiomeAt(x, Math.floorMod(y, 16), z);
+                if (biomeTag != null) {
+                    return this.biomeFromTag(biomeTag);
+                }
             }
             i++;
         }
@@ -73,7 +81,10 @@ public abstract class ChunkReader implements Reader {
         while (i >= MINIMUM_SECTION_HEIGHT) {
             section = sectionMap.get(i);
             if (section != null) {
-                return this.biomeFromTag(section.getBiomeAt(x, 15, z));
+                biomeTag = section.getBiomeAt(x, Math.floorMod(y, 16), z);
+                if (biomeTag != null) {
+                    return this.biomeFromTag(biomeTag);
+                }
             }
             i--;
         }
@@ -87,7 +98,8 @@ public abstract class ChunkReader implements Reader {
         }
 
         Predicate<Section> isAir = s -> {
-            if (s.getBlockStatePalette().getPalette().size() > 1) { return false; }
+            PaletteContainer<CompoundTag> paletteContainer = s.getBlockStatePalette();
+            if (paletteContainer.getPalette().size() > 1) { return false; }
             CompoundTag b = s.getBlockStatePalette().get(0);
             if (b == null) { return true; }
             return this.blockFromTag(b).map(Block::isAir).orElse(true);

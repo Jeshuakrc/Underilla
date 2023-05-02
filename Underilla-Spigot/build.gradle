@@ -13,14 +13,12 @@ repositories {
 }
 
 group = 'com.Jkantrell.mc'
-version = '1.0.0'
-description = 'Underilla-Spigot'
+version = '1.1.0'
 java.sourceCompatibility = JavaVersion.VERSION_17
 
 dependencies {
     paperweightDevelopmentBundle 'io.papermc.paper:dev-bundle:1.19.4-R0.1-SNAPSHOT'
     implementation 'com.jkantrell:Yamlizer:main-SNAPSHOT'
-    implementation 'com.jkantrell:KntNBT:2.1.0'
     implementation project(':Underilla-Core')
     compileOnly 'org.spigotmc:spigot:1.19.4-R0.1-SNAPSHOT:remapped-mojang'
 }
