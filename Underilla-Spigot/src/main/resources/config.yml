@@ -6,9 +6,6 @@ reference_world: "world_base"
 # This results in only perlin worms type caves. 1.18+ caves are generated only in vanilla underground.
 generate_noodle_caves: true
 
-# Weather or not to allow vanilla Minecraft populate/decorate over the reference world.
-vanilla_population: true
-
 # Weather or not to transfer the reference world's biomes over to the merged world. IF false, only terrain is merged.
 transfer_biomes: true
 
@@ -44,3 +41,14 @@ absolute:
 # The range the transition between vanilla and reference worlds takes, the wider, the smoother.
 # <= 0 results in a sharp transition.
 blend_range: 8
+
+# Weather or not to allow vanilla Minecraft populate/decorate over the reference world.
+vanilla_population: true
+
+structures:
+  # Weather or not to allow vanilla Minecraft generate structures in the world.
+  enabled: true
+  # Structures defines here won't ever generate, regardless of the above setting.
+  # Must be defined as Structure enum from Spigot API: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/generator/structure/Structure.html
+  # Example: ["MONUMENT","FORTRESS"]
+  blacklist: []

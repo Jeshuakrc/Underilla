@@ -28,4 +28,6 @@ public class GenerationConfig {
     public int mergeLimit = 22;
 
     public int mergeBlendRange = 8;
+
+    public Boolean generateStructures = true;
 }

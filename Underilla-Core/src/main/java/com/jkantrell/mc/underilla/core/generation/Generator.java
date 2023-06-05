@@ -90,6 +90,6 @@ public class Generator {
     }
 
     public boolean shouldGenerateStructures(int chunkX, int chunkZ) {
-        return this.config_.vanillaPopulation;
+        return this.config_.generateStructures;
     }
 }

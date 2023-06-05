@@ -47,7 +47,7 @@ public class BukkitBlock implements Block {
     @Override
     public void waterlog() {
         if (this.isAir()) {
-            this.blockData_ = Material.AIR.createBlockData();
+            this.blockData_ = Material.WATER.createBlockData();
             return;
         }
         if (!(this.blockData_ instanceof Waterlogged waterlogged)) { return; }
