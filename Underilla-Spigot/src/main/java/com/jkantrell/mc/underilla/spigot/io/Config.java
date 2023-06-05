@@ -5,8 +5,12 @@ import com.jkantrell.mc.underilla.core.generation.GenerationConfig;
 import com.jkantrell.mc.underilla.core.generation.MergeStrategy;
 import com.jkantrell.yamlizer.yaml.AbstractYamlConfig;
 import com.jkantrell.yamlizer.yaml.ConfigField;
+import com.jkantrell.yamlizer.yaml.YamlElementType;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.block.Biome;
-
+import org.bukkit.generator.structure.Structure;
+import java.util.Collections;
 import java.util.List;
 
 public class Config extends AbstractYamlConfig {
@@ -14,6 +18,10 @@ public class Config extends AbstractYamlConfig {
     //CONSTRUCTORS
     public Config(String filePath) {
         super(filePath);
+        this.yamlizer.addSerializationRule(Structure.class, (element, type) -> {
+            String name = element.get(YamlElementType.STRING).toLowerCase();
+            return Registry.STRUCTURE.get(NamespacedKey.minecraft(name));
+        });
     }
 
 
@@ -51,6 +59,12 @@ public class Config extends AbstractYamlConfig {
     @ConfigField(path = "blend_range")
     public int mergeBlendRange = 8;
 
+    @ConfigField(path = "structures.enabled")
+    public Boolean generateStructures = true;
+
+    @ConfigField(path = "structures.blacklist")
+    public List<Structure> structureBlackList = Collections.emptyList();
+
     public GenerationConfig toGenerationConfig() {
         GenerationConfig r = new GenerationConfig();
 
@@ -65,6 +79,7 @@ public class Config extends AbstractYamlConfig {
         r.keepUndergroundBiomes = this.keepUndergroundBiomes.stream().map(BukkitBiome::new).toList();
         r.mergeLimit = this.mergeLimit;
         r.mergeBlendRange = this.mergeBlendRange;
+        r.generateStructures = this.generateStructures;
 
         return r;
     }

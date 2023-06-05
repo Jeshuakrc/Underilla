@@ -3,6 +3,7 @@ package com.jkantrell.mc.underilla.spigot;
 import com.jkantrell.mc.underilla.spigot.generation.UnderillaChunkGenerator;
 import com.jkantrell.mc.underilla.spigot.io.Config;
 import com.jkantrell.mc.underilla.spigot.impl.BukkitWorldReader;
+import com.jkantrell.mc.underilla.spigot.listener.StructureEventListener;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.java.JavaPlugin;
 import java.io.File;
@@ -42,6 +43,11 @@ public final class Underilla extends JavaPlugin {
             this.getServer().getLogger().info("World + '" + Underilla.CONFIG.referenceWorldName + "' found.");
         } catch (NoSuchFieldException e) {
             e.printStackTrace();
+        }
+
+        //Registering listeners
+        if (CONFIG.generateStructures) {
+            this.getServer().getPluginManager().registerEvents(new StructureEventListener(CONFIG.structureBlackList), this);
         }
     }
 }
