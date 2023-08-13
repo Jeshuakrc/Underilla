@@ -9,6 +9,8 @@ import com.jkantrell.nbt.tag.CompoundTag;
 import com.jkantrell.nbt.tag.StringTag;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.block.data.BlockData;
+
 import java.util.Optional;
 
 public class BukkitChunkReader extends ChunkReader {
@@ -19,7 +21,7 @@ public class BukkitChunkReader extends ChunkReader {
     }
 
 
-    //IMPLEMENTATIONS
+    //IMPLEMENTATION
     @Override
     public Optional<Block> blockFromTag(CompoundTag tag) {
         Material m = Optional.ofNullable(tag)
@@ -34,8 +36,16 @@ public class BukkitChunkReader extends ChunkReader {
             block = new BukkitBlock(m.createBlockData());
             return Optional.of(block);
         }
-        String dataString = TagInterpreter.COMPOUND.interpretBlockDataString(properties);
-        block = new BukkitBlock(m.createBlockData(dataString));
+
+        //IllegalArgumentException might be thrown if block data is not compatible with current version of Minecraft
+        //In such case, return plain block with no data
+        try {
+            String dataString = TagInterpreter.COMPOUND.interpretBlockDataString(properties);
+            block = new BukkitBlock(m.createBlockData(dataString));
+        } catch (IllegalArgumentException e) {
+            block = new BukkitBlock(m.createBlockData());
+        }
+
         return Optional.of(block);
     }
     @Override
