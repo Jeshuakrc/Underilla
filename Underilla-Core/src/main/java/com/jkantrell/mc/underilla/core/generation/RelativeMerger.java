@@ -83,10 +83,9 @@ public class RelativeMerger implements Merger {
         while (i.hasNextColumn()) {
             Vector<Integer> v = i.nextColumn();
             fillVectors.add(v);
-            boolean presevedBiome = this.preserveBiomes_.contains(chunkData.getBiome(v.x(), v.y(), v.z()));
             //if (i.hasNext()) { v = i.next(); }
             if (!RelativeMerger.isInChunk(chunkX, chunkZ, v)) { continue; }
-            while (!blockGetter.apply(v).isSolid() || this.upperLimit_ < v.y() || presevedBiome) {
+            while (!blockGetter.apply(v).isSolid() || this.upperLimit_ < v.y() || isPreservedBiome(reader, v)) {
                 fillVectors.add(v);
                 if (!i.hasNextInColumn()) { break; }
                 v = i.next();
@@ -108,6 +107,15 @@ public class RelativeMerger implements Merger {
                 });
 
     }
+    private boolean isPreservedBiome(ChunkReader reader, Vector v) {
+        try {
+            return this.preserveBiomes_.contains(reader.biomeAt(relativeCoordinates(v)).orElse(null));
+        }catch (IndexOutOfBoundsException e){
+            System.out.println("IndexOutOfBoundsException for "+v);
+            return false;
+        }
+    }
+
     @Override
     public void mergeBiomes(ChunkReader reader, ChunkData chunkData) {
 
