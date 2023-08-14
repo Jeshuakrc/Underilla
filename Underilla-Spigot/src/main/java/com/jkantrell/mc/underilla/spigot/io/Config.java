@@ -59,6 +59,9 @@ public class Config extends AbstractYamlConfig {
     @ConfigField(path = "blend_range")
     public int mergeBlendRange = 8;
 
+    @ConfigField(path = "preserve_biomes")
+    public List<Biome> preserveBiomes = List.of();
+
     @ConfigField(path = "structures.enabled")
     public Boolean generateStructures = true;
 
@@ -77,6 +80,7 @@ public class Config extends AbstractYamlConfig {
         r.mergeLowerLimit = this.mergeLowerLimit;
         r.mergeDepth = this.mergeDepth;
         r.keepUndergroundBiomes = this.keepUndergroundBiomes.stream().map(BukkitBiome::new).toList();
+        r.preserveBiomes = this.preserveBiomes.stream().map(BukkitBiome::new).toList();
         r.mergeLimit = this.mergeLimit;
         r.mergeBlendRange = this.mergeBlendRange;
         r.generateStructures = this.generateStructures;

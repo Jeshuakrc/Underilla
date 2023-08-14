@@ -42,6 +42,10 @@ absolute:
 # <= 0 results in a sharp transition.
 blend_range: 8
 
+# The biomes where vanilla underground will not be generated.
+# Biomes must be defined as spigot Biome enum constants. https://hub.spigotmc.org/javadocs/spigot/org/bukkit/block/Biome.html
+preserve_biomes: []
+
 # Weather or not to allow vanilla Minecraft populate/decorate over the reference world.
 vanilla_population: true
 

@@ -21,17 +21,18 @@ public class RelativeMerger implements Merger {
     //FIELDS
     private final WorldReader worldReader_;
     private final int upperLimit_, lowerLimit_, depth_, blendRange_;
-    private final List<? extends Biome> keptBiomes_;
+    private final List<? extends Biome> keptBiomes_, preserveBiomes_;
 
 
     //CONSTRUCTORS
-    RelativeMerger(WorldReader worldReader, int upperLimit, int lowerLimit, int depth, int transitionRange, List<? extends Biome> keptBiomes) {
+    RelativeMerger(WorldReader worldReader, int upperLimit, int lowerLimit, int depth, int transitionRange, List<? extends Biome> keptBiomes, List<? extends Biome> preservedBiomes) {
         this.worldReader_ = worldReader;
         this.upperLimit_ = upperLimit;
         this.lowerLimit_ = lowerLimit;
         this.depth_ = depth;
         this.blendRange_ = transitionRange;
         this.keptBiomes_ = keptBiomes;
+        this.preserveBiomes_ = preservedBiomes;
     }
 
 
@@ -82,9 +83,10 @@ public class RelativeMerger implements Merger {
         while (i.hasNextColumn()) {
             Vector<Integer> v = i.nextColumn();
             fillVectors.add(v);
+            boolean presevedBiome = this.preserveBiomes_.contains(chunkData.getBiome(v.x(), v.y(), v.z()));
             //if (i.hasNext()) { v = i.next(); }
             if (!RelativeMerger.isInChunk(chunkX, chunkZ, v)) { continue; }
-            while (!blockGetter.apply(v).isSolid() || this.upperLimit_ < v.y()) {
+            while (!blockGetter.apply(v).isSolid() || this.upperLimit_ < v.y() || presevedBiome) {
                 fillVectors.add(v);
                 if (!i.hasNextInColumn()) { break; }
                 v = i.next();

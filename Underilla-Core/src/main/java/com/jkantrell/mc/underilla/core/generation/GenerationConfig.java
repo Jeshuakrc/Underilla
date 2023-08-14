@@ -25,6 +25,8 @@ public class GenerationConfig {
 
     public List<? extends Biome> keepUndergroundBiomes = Collections.emptyList();
 
+    public List<? extends Biome> preserveBiomes = Collections.emptyList();
+
     public int mergeLimit = 22;
 
     public int mergeBlendRange = 8;
