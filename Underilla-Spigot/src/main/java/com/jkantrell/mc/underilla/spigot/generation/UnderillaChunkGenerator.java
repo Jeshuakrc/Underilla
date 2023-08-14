@@ -79,7 +79,7 @@ public class UnderillaChunkGenerator extends ChunkGenerator {
 
     @Override
     public boolean shouldGenerateCaves(WorldInfo worldInfo, Random random, int chunkX, int chunkZ) {
-        return this.delegate_.shouldGenerateNoise(chunkX, chunkZ);
+        return this.delegate_.shouldGenerateCaves(chunkX, chunkZ);
     }
 
     @Override
