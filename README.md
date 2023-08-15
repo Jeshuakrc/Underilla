@@ -62,3 +62,7 @@ If you're going to plug your custom WorldPainter world into Underilla, consider 
 - Don't user the resource layer. Underilla will have the vanilla generator take care of that for you.
 - The Populate layer has no effect. Weather all or none of the terrain will be populated based on the above point.
 - If you have custom cave/tunnels layers and want to preserve them during the merge, you'd want to use the Relative merge strategy
+
+
+## Build
+Create working jar with `gradle buildDependents`

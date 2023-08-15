@@ -53,6 +53,9 @@ public class Config extends AbstractYamlConfig {
     @ConfigField(path = "relative.keep_underground_biomes")
     public List<Biome> keepUndergroundBiomes = List.of(Biome.DEEP_DARK, Biome.DRIPSTONE_CAVES, Biome.LUSH_CAVES);
 
+    @ConfigField(path = "relative.keep_reference_world_ores")
+    public boolean keepReferenceWorldOres = false;
+
     @ConfigField(path = "absolute.limit")
     public int mergeLimit = 22;
 
@@ -80,6 +83,7 @@ public class Config extends AbstractYamlConfig {
         r.mergeLowerLimit = this.mergeLowerLimit;
         r.mergeDepth = this.mergeDepth;
         r.keepUndergroundBiomes = this.keepUndergroundBiomes.stream().map(BukkitBiome::new).toList();
+        r.keepReferenceWorldOres = this.keepReferenceWorldOres;
         r.preserveBiomes = this.preserveBiomes.stream().map(BukkitBiome::new).toList();
         r.mergeLimit = this.mergeLimit;
         r.mergeBlendRange = this.mergeBlendRange;

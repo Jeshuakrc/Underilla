@@ -32,6 +32,9 @@ relative:
     - DEEP_DARK
     - DRIPSTONE_CAVES
     - LUSH_CAVES
+  # Weather or not to keep ores from reference world underground.
+  # It is usefull when vanilla_population is set to false.
+  keep_reference_world_ores: false
 
 # ABSOLUTE strategy exclusive settings
 absolute:

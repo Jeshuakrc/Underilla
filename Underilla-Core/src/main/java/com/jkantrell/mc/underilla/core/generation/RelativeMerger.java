@@ -22,10 +22,11 @@ public class RelativeMerger implements Merger {
     private final WorldReader worldReader_;
     private final int upperLimit_, lowerLimit_, depth_, blendRange_;
     private final List<? extends Biome> keptBiomes_, preserveBiomes_;
+    private final boolean keepReferenceWorldOres_;
 
 
     //CONSTRUCTORS
-    RelativeMerger(WorldReader worldReader, int upperLimit, int lowerLimit, int depth, int transitionRange, List<? extends Biome> keptBiomes, List<? extends Biome> preservedBiomes) {
+    RelativeMerger(WorldReader worldReader, int upperLimit, int lowerLimit, int depth, int transitionRange, List<? extends Biome> keptBiomes, List<? extends Biome> preservedBiomes, boolean keepReferenceWorldOres) {
         this.worldReader_ = worldReader;
         this.upperLimit_ = upperLimit;
         this.lowerLimit_ = lowerLimit;
@@ -33,6 +34,7 @@ public class RelativeMerger implements Merger {
         this.blendRange_ = transitionRange;
         this.keptBiomes_ = keptBiomes;
         this.preserveBiomes_ = preservedBiomes;
+        this.keepReferenceWorldOres_ = keepReferenceWorldOres;
     }
 
 
@@ -62,11 +64,18 @@ public class RelativeMerger implements Merger {
         //Getting all non solid blocks (and ores)
         List<Vector<Integer>> fillVectors = new LinkedList<>();
         for (ChunkReader c : chunks) {
-            c.locationsOf(m -> !m.isSolid() || isCustomWorldOreOutOfVanillaCaves(m, null), airColumn, chunkData.getMinHeight()).stream()      //Constraining the height up to the air column is also key for performance
-                    .filter(m -> !m.value().isSolid() || isCustomWorldOreOutOfVanillaCaves(m.value(), blockGetter.apply(((LocatedBlock)m).vector())))
-                    .map(LocatedBlock::vector)
-                    .map(v -> RelativeMerger.absoluteCoordinates(c.getX(), c.getZ(), v))
-                    .forEach(fillVectors::add);
+            if(keepReferenceWorldOres_){
+                c.locationsOf(m -> !m.isSolid() || isCustomWorldOreOutOfVanillaCaves(m, null), airColumn, chunkData.getMinHeight()).stream()      //Constraining the height up to the air column is also key for performance
+                        .filter(m -> !m.value().isSolid() || isCustomWorldOreOutOfVanillaCaves(m.value(), blockGetter.apply(((LocatedBlock)m).vector())))
+                        .map(LocatedBlock::vector)
+                        .map(v -> RelativeMerger.absoluteCoordinates(c.getX(), c.getZ(), v))
+                        .forEach(fillVectors::add);
+            }else {
+                c.locationsOf(m -> !m.isSolid(), airColumn, chunkData.getMinHeight()).stream()      //Constraining the height up to the air column is also key for performance
+                        .map(LocatedBlock::vector)
+                        .map(v -> RelativeMerger.absoluteCoordinates(c.getX(), c.getZ(), v))
+                        .forEach(fillVectors::add);
+            }
         }
 
         //Defining spreader constrains
@@ -110,6 +119,7 @@ public class RelativeMerger implements Merger {
                 });
 
     }
+    /** Return true if this biome need to be only custom world */
     private boolean isPreservedBiome(ChunkReader reader, Vector v) {
         try {
             return this.preserveBiomes_.contains(reader.biomeAt(relativeCoordinates(v)).orElse(null));
@@ -118,8 +128,13 @@ public class RelativeMerger implements Merger {
             return false;
         }
     }
+    /** Return true if this block is an ore in the custom world and a solid block in vanilla world (This avoid to have ores floating in the air in vanilla caves).
+     * 
+     * @param b the block to check if is ore
+     * @param vanillaBlock the block in vanilla world
+    */
     private boolean isCustomWorldOreOutOfVanillaCaves(Block b, Block vanillaBlock) {
-        return b.getName().toLowerCase().contains("ore") && (vanillaBlock==null || vanillaBlock.isSolid()); // isSolid() instead of !isAir() to avoid to have floating ores in lava or water underground lacs
+        return b.getName().toLowerCase().contains("ore") && (vanillaBlock==null || vanillaBlock.isSolid());
     }
 
     @Override
