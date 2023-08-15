@@ -44,6 +44,7 @@ public class RelativeMerger implements Merger {
     }
     @Override
     public void mergeLand(ChunkReader reader, ChunkData chunkData) {
+        Function<Vector<Integer>, Block> blockGetter = v -> chunkData.getBlock(RelativeMerger.relativeCoordinates(v.clone()));
 
         //Getting rid of top air column (KEY FOR PERFORMANCE)
         int airColumn = Math.max(reader.airSectionsBottom(), this.lowerLimit_);
@@ -58,10 +59,11 @@ public class RelativeMerger implements Merger {
         }
         chunks.add(reader);
 
-        //Getting all non solid blocks
+        //Getting all non solid blocks (and ores)
         List<Vector<Integer>> fillVectors = new LinkedList<>();
         for (ChunkReader c : chunks) {
-            c.locationsOf(m -> !m.isSolid(), airColumn, chunkData.getMinHeight()).stream()      //Constraining the height up to the air column is also key for performance
+            c.locationsOf(m -> !m.isSolid() || isCustomWorldOreOutOfVanillaCaves(m, null), airColumn, chunkData.getMinHeight()).stream()      //Constraining the height up to the air column is also key for performance
+                    .filter(m -> !m.value().isSolid() || isCustomWorldOreOutOfVanillaCaves(m.value(), blockGetter.apply(((LocatedBlock)m).vector())))
                     .map(LocatedBlock::vector)
                     .map(v -> RelativeMerger.absoluteCoordinates(c.getX(), c.getZ(), v))
                     .forEach(fillVectors::add);
@@ -76,16 +78,17 @@ public class RelativeMerger implements Merger {
 
         //Getting rid of all non-used vectors
         fillVectors.removeIf(v -> v.y() < this.lowerLimit_ || !spreader.contains(v));
+        // fillVectors.removeIf(v -> (v.y() < this.lowerLimit_ || !spreader.contains(v)) && !isPreservedBiome(reader, v));
 
         //Including everything above upper limit, and any non-solid block over vanilla noise surface.
-        Function<Vector<Integer>, Block> blockGetter = v -> chunkData.getBlock(RelativeMerger.relativeCoordinates(v.clone()));
-        VectorIterable i = new VectorIterable(minVector.x(), maxVector.x(), this.lowerLimit_, airColumn, minVector.z(), maxVector.z());
+        VectorIterable i = new VectorIterable(minVector.x(), maxVector.x(), this.lowerLimit_, airColumn+1, minVector.z(), maxVector.z());
         while (i.hasNextColumn()) {
             Vector<Integer> v = i.nextColumn();
             fillVectors.add(v);
             //if (i.hasNext()) { v = i.next(); }
             if (!RelativeMerger.isInChunk(chunkX, chunkZ, v)) { continue; }
-            while (!blockGetter.apply(v).isSolid() || this.upperLimit_ < v.y() || isPreservedBiome(reader, v)) {
+            boolean isPreservedBiome = isPreservedBiome(reader, v);
+            while (!blockGetter.apply(v).isSolid() || this.upperLimit_ < v.y() || isPreservedBiome) {
                 fillVectors.add(v);
                 if (!i.hasNextInColumn()) { break; }
                 v = i.next();
@@ -114,6 +117,9 @@ public class RelativeMerger implements Merger {
             System.out.println("IndexOutOfBoundsException for "+v);
             return false;
         }
+    }
+    private boolean isCustomWorldOreOutOfVanillaCaves(Block b, Block vanillaBlock) {
+        return b.getName().toLowerCase().contains("ore") && (vanillaBlock==null || vanillaBlock.isSolid()); // isSolid() instead of !isAir() to avoid to have floating ores in lava or water underground lacs
     }
 
     @Override
