@@ -1,5 +1,6 @@
 package com.jkantrell.mc.underilla.core.generation;
 
+import java.util.List;
 import com.jkantrell.mc.underilla.core.api.Biome;
 import com.jkantrell.mc.underilla.core.api.Block;
 import com.jkantrell.mc.underilla.core.api.ChunkData;
@@ -14,12 +15,14 @@ class AbsoluteMerger implements Merger {
     //FIELDS
     private final WorldReader worldReader_;
     private final int height_;
+    private final List<? extends Biome> preserveBiomes_;
 
 
     //CONSTRUCTORS
-    AbsoluteMerger(WorldReader worldReader, int height) {
+    AbsoluteMerger(WorldReader worldReader, int height, List<? extends Biome> preserveBiomes) {
         this.worldReader_ = worldReader;
         this.height_ = height;
+        this.preserveBiomes_ = preserveBiomes;
     }
 
 
@@ -34,6 +37,7 @@ class AbsoluteMerger implements Merger {
         Block airBlock = reader.blockFromTag(MCAUtil.airBlockTag()).get();
         int airColumn = Math.max(reader.airSectionsBottom(), this.height_);
         chunkData.setRegion(0, airColumn, 0, 16, chunkData.getMaxHeight(), 16, airBlock);
+        // TODO use preserveBiomes
 
         VectorIterable iterable = new VectorIterable(0, 16, this.height_, airColumn, 0, 16);
         for (Vector<Integer> v : iterable) {

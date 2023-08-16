@@ -83,6 +83,11 @@ public abstract class Vector <T extends Number> implements Cloneable, Comparable
         return Math.sqrt(x + y + z);
     }
 
+    @Override
+    public String toString() {
+        return String.format("(%s, %s, %s)", this.x_, this.y_, this.z_);
+    }
+
 
     //PRIVATE
     protected abstract T add(T a, T b);

@@ -32,6 +32,9 @@ relative:
     - DEEP_DARK
     - DRIPSTONE_CAVES
     - LUSH_CAVES
+  # Weather or not to keep ores from reference world underground.
+  # It is usefull when vanilla_population is set to false.
+  keep_reference_world_ores: false
 
 # ABSOLUTE strategy exclusive settings
 absolute:
@@ -41,6 +44,10 @@ absolute:
 # The range the transition between vanilla and reference worlds takes, the wider, the smoother.
 # <= 0 results in a sharp transition.
 blend_range: 8
+
+# The biomes where vanilla underground will not be generated.
+# Biomes must be defined as spigot Biome enum constants. https://hub.spigotmc.org/javadocs/spigot/org/bukkit/block/Biome.html
+preserve_biomes: []
 
 # Weather or not to allow vanilla Minecraft populate/decorate over the reference world.
 vanilla_population: true

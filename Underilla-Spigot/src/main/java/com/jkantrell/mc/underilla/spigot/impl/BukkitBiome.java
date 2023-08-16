@@ -32,4 +32,11 @@ public class BukkitBiome implements Biome {
         if (!(o instanceof BukkitBiome bukkitBiome)) { return false; }
         return this.biome_.equals(bukkitBiome.biome_);
     }
+
+    @Override
+    public String toString() {
+        return "BukkitBiome{" +
+                "biome_=" + biome_ +
+                '}';
+    }
 }
