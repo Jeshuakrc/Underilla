@@ -26,7 +26,7 @@ public class Generator {
         this.config_ = config;
         this.merger_ = config_.mergeStrategy.equals(MergeStrategy.RELATIVE)
                 ? new RelativeMerger(this.worldReader_, config_.mergeUpperLimit, config_.mergeLowerLimit, config_.mergeDepth, config_.mergeBlendRange, config_.keepUndergroundBiomes, config_.preserveBiomes, config_.keepReferenceWorldOres)
-                : new AbsoluteMerger(this.worldReader_, config_.mergeStrategy.equals(MergeStrategy.NONE) ? -64 : config_.mergeLimit, config_.preserveBiomes);
+                : new AbsoluteMerger(this.worldReader_, config_.mergeStrategy.equals(MergeStrategy.NONE) ? -64 : config_.mergeLimit, config_.preserveBiomes, config.ravinBiomes);
     }
 
     public int getBaseHeight(WorldInfo worldInfo, int x, int z, HeightMapType heightMap) {

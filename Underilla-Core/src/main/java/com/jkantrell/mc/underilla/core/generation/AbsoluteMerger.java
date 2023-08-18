@@ -6,6 +6,7 @@ import com.jkantrell.mc.underilla.core.api.Block;
 import com.jkantrell.mc.underilla.core.api.ChunkData;
 import com.jkantrell.mc.underilla.core.reader.ChunkReader;
 import com.jkantrell.mc.underilla.core.reader.WorldReader;
+import com.jkantrell.mc.underilla.core.vector.IntVector;
 import com.jkantrell.mc.underilla.core.vector.Vector;
 import com.jkantrell.mc.underilla.core.vector.VectorIterable;
 import com.jkantrell.mca.MCAUtil;
@@ -15,14 +16,15 @@ class AbsoluteMerger implements Merger {
     //FIELDS
     private final WorldReader worldReader_;
     private final int height_;
-    private final List<? extends Biome> preserveBiomes_;
+    private final List<? extends Biome> preserveBiomes_, ravinBiomes_;
 
 
     //CONSTRUCTORS
-    AbsoluteMerger(WorldReader worldReader, int height, List<? extends Biome> preserveBiomes) {
+    AbsoluteMerger(WorldReader worldReader, int height, List<? extends Biome> preserveBiomes, List<? extends Biome> ravinBiomes) {
         this.worldReader_ = worldReader;
         this.height_ = height;
         this.preserveBiomes_ = preserveBiomes;
+        this.ravinBiomes_ = ravinBiomes;
     }
 
 
@@ -41,20 +43,23 @@ class AbsoluteMerger implements Merger {
 
         VectorIterable iterable = new VectorIterable(0, 16, -64, airColumn, 0, 16);
         for (Vector<Integer> v : iterable) {
-            // if(v.y() > (isPreservedBiome(reader, v) ? -64 : this.height_)){
-                Block b = reader.blockAt(v).orElse(airBlock);
-                Block vanillaBlock = chunkData.getBlock(v);
-                // Place the custom world bloc over 55 (or -64 if is preseved biome) or if it is a custom ore or if it is air, or if vanilla world have watter or grass over 30
-                // and do not replace liquid vanilla blocks by air. (to preserve water and lava lackes)
-                if(
-                        ((v.y() > (isPreservedBiome(reader, v) ? -64 : this.height_))
-                        || (isCustomWorldOreOutOfVanillaCaves(b, vanillaBlock) )
-                        || (v.y() > 30 && (vanillaBlock.isLiquid() || vanillaBlock.getName().equalsIgnoreCase("GRASS_BLOCK"))))
-                        || (b.isAir() && !vanillaBlock.isLiquid())
-                ){
-                    chunkData.setBlock(v, b);
+            Block b = reader.blockAt(v).orElse(airBlock);
+            Block vanillaBlock = chunkData.getBlock(v);
+            // Place the custom world bloc over 55 (or -64 if is preseved biome) or if it is a custom ore or if it is air, or if vanilla world have watter or grass over 30
+            // and do not replace liquid vanilla blocks by air. (to preserve water and lava lackes)
+            if(
+                    ((v.y() > (isPreservedBiome(reader, v) ? -64 : this.height_))
+                    || (isCustomWorldOreOutOfVanillaCaves(b, vanillaBlock) )
+                    || (v.y() > 30 && (vanillaBlock.isLiquid() || vanillaBlock.getName().equalsIgnoreCase("GRASS_BLOCK"))))
+                    || (b.isAir() && !vanillaBlock.isLiquid())
+            ){
+                chunkData.setBlock(v, b);
+            }
+            if(v.y() == this.height_+1 && vanillaBlock.isAir() && isRavinBiome(reader, v) && chunkData.getBlock(new IntVector(v.x(), this.height_-10, v.z())).isAir()){
+                for (int i=this.height_+1; i<airColumn; i++){
+                    chunkData.setBlock(new IntVector(v.x(), i, v.z()), vanillaBlock);
                 }
-            // }
+            }
         }
     }
 
@@ -84,6 +89,10 @@ class AbsoluteMerger implements Merger {
     /** Return true if this biome need to be only custom world */
     private boolean isPreservedBiome(ChunkReader reader, Vector<Integer> v) {
         return this.preserveBiomes_.contains(reader.biomeAt(relativeCoordinates(v)).orElse(null));
+    }
+
+    private boolean isRavinBiome(ChunkReader reader, Vector<Integer> v){
+        return this.ravinBiomes_.contains(reader.biomeAt(relativeCoordinates(v)).orElse(null));
     }
 
 
