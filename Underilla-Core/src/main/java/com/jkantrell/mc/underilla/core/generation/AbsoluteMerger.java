@@ -55,8 +55,9 @@ class AbsoluteMerger implements Merger {
             ){
                 chunkData.setBlock(v, b);
             }
-            if(v.y() == this.height_+1 && vanillaBlock.isAir() && isRavinBiome(reader, v) && chunkData.getBlock(new IntVector(v.x(), this.height_-10, v.z())).isAir()){
-                for (int i=this.height_+1; i<airColumn; i++){
+
+            if(v.y() == this.height_ && vanillaBlock.isAir() && isRavinBiome(reader, v) && isAirCollumn(chunkData, v, 30)){
+                for (int i=this.height_; i<airColumn; i++){
                     chunkData.setBlock(new IntVector(v.x(), i, v.z()), vanillaBlock);
                 }
             }
@@ -93,6 +94,16 @@ class AbsoluteMerger implements Merger {
 
     private boolean isRavinBiome(ChunkReader reader, Vector<Integer> v){
         return this.ravinBiomes_.contains(reader.biomeAt(relativeCoordinates(v)).orElse(null));
+    }
+
+    /** Return true if all the collumn is air. */
+    private boolean isAirCollumn(ChunkData chunkData, Vector<Integer> v, int len){
+        for (int i=0; i<len; i++){
+            if (!chunkData.getBlock(new IntVector(v.x(), v.y()-i, v.z())).isAir()){
+                return false;
+            }
+        }
+        return true;
     }
 
 
