@@ -133,8 +133,11 @@ public class RelativeMerger implements Merger {
      * @param b the block to check if is ore
      * @param vanillaBlock the block in vanilla world
     */
+    private static List<String> notToRemove = List.of("COAL_ORE", "COPPER_ORE", "DIAMOND_ORE", "EMERALD_ORE", "GOLD_ORE", "IRON_ORE", "LAPIS_ORE", "REDSTONE_ORE",
+    "DEEPSLATE_COAL_ORE", "DEEPSLATE_COPPER_ORE", "DEEPSLATE_DIAMOND_ORE", "DEEPSLATE_EMERALD_ORE", "DEEPSLATE_GOLD_ORE", "DEEPSLATE_IRON_ORE", "DEEPSLATE_LAPIS_ORE", "DEEPSLATE_REDSTONE_ORE",
+    "ANDESITE", "DIORITE", "GRANITE", "CLAY", "QUARTZ_BLOCK", "CALCITE");
     private boolean isCustomWorldOreOutOfVanillaCaves(Block b, Block vanillaBlock) {
-        return b.getName().toLowerCase().contains("ore") && (vanillaBlock==null || vanillaBlock.isSolid());
+        return notToRemove.contains(b.getName().toUpperCase()) && (vanillaBlock==null || vanillaBlock.isSolid());
     }
 
     @Override
