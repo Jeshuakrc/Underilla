@@ -5,6 +5,7 @@ import com.jkantrell.mc.underilla.core.api.Biome;
 import com.jkantrell.mc.underilla.core.api.Block;
 import com.jkantrell.mc.underilla.core.api.ChunkData;
 import com.jkantrell.mc.underilla.core.reader.ChunkReader;
+import com.jkantrell.mc.underilla.core.reader.Reader;
 import com.jkantrell.mc.underilla.core.reader.WorldReader;
 import com.jkantrell.mc.underilla.core.vector.IntVector;
 import com.jkantrell.mc.underilla.core.vector.Vector;
@@ -42,13 +43,24 @@ class AbsoluteMerger implements Merger {
         chunkData.setRegion(0, airColumn, 0, 16, chunkData.getMaxHeight(), 16, airBlock);
 
         VectorIterable iterable = new VectorIterable(0, 16, -64, airColumn, 0, 16);
+        int collumnHeigth = this.height_;
+        int lastX = -1;
+        int lastZ = -1;
         for (Vector<Integer> v : iterable) {
             Block b = reader.blockAt(v).orElse(airBlock);
             Block vanillaBlock = chunkData.getBlock(v);
+
+            // For every collumn of bloc calculate the lower block to remove that migth be lower than height_.
+            if(v.x()!=lastX || v.z()!=lastZ){
+                lastX = v.x();
+                lastZ = v.z();
+                collumnHeigth = getLowerBlockToRemove(reader, v.x(), v.z(), airBlock);
+            }
+
             // Place the custom world bloc over 55 (or -64 if is preseved biome) or if it is a custom ore or if it is air, or if vanilla world have watter or grass over 30
             // and do not replace liquid vanilla blocks by air. (to preserve water and lava lackes)
             if(
-                    ((v.y() > (isPreservedBiome(reader, v) ? -64 : this.height_))
+                    ((v.y() > (isPreservedBiome(reader, v) ? -64 : collumnHeigth))
                     || (isCustomWorldOreOutOfVanillaCaves(b, vanillaBlock) )
                     || (v.y() > 30 && (vanillaBlock.isLiquid() || vanillaBlock.getName().equalsIgnoreCase("GRASS_BLOCK"))))
                     || (b.isAir() && !vanillaBlock.isLiquid())
@@ -56,12 +68,21 @@ class AbsoluteMerger implements Merger {
                 chunkData.setBlock(v, b);
             }
 
-            if(v.y() == this.height_ && vanillaBlock.isAir() && isRavinBiome(reader, v) && isAirCollumn(chunkData, v, 30)){
-                for (int i=this.height_; i<airColumn; i++){
+            if(v.y() == collumnHeigth && vanillaBlock.isAir() && isRavinBiome(reader, v) && isAirCollumn(chunkData, v, 30)){
+                for (int i=collumnHeigth; i<airColumn; i++){
                     chunkData.setBlock(new IntVector(v.x(), i, v.z()), vanillaBlock);
                 }
             }
         }
+    }
+
+    /** return the 1st block 2 blocks under surface or heigth_ */
+    private int getLowerBlockToRemove(Reader reader, int x, int z, Block defaultBlock){
+        int lbtr = this.height_+2;
+        while(!reader.blockAt(x, lbtr, z).orElse(defaultBlock).isSolid()){
+            lbtr--;
+        }
+        return lbtr-2;
     }
 
     @Override
