@@ -87,9 +87,10 @@ class AbsoluteMerger implements Merger {
 
     @Override
     public void mergeBiomes(ChunkReader reader, ChunkData chunkData) {
-        VectorIterable iterable = new VectorIterable(0, 4, -64, chunkData.getMaxHeight() >> 2, 0, 4);
+        VectorIterable iterable = new VectorIterable(0, 16, -64, 256, 0, 16);
         for (Vector<Integer> v : iterable) {
-            Biome biome = reader.biomeAtCell(v).orElse(null);
+            // Biome biome = reader.biomeAtCell(v).orElse(null);
+            Biome biome = reader.biomeAt(v).orElse(null);
             if (biome == null) { continue; }
             chunkData.setBiome(v, biome);
         }
