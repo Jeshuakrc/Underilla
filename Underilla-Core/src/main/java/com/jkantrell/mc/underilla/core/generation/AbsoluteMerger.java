@@ -61,13 +61,14 @@ class AbsoluteMerger implements Merger {
             // and do not replace liquid vanilla blocks by air. (to preserve water and lava lackes)
             if(
                     ((v.y() > (isPreservedBiome(reader, v) ? -64 : collumnHeigth))
-                    || (isCustomWorldOreOutOfVanillaCaves(b, vanillaBlock) )
+                    || (isCustomWorldOreOutOfVanillaCaves(b, vanillaBlock))
                     || (v.y() > 30 && (vanillaBlock.isLiquid() || vanillaBlock.getName().equalsIgnoreCase("GRASS_BLOCK"))))
                     || (b.isAir() && !vanillaBlock.isLiquid())
             ){
                 chunkData.setBlock(v, b);
             }
 
+            // create ravines
             if(v.y() == collumnHeigth && vanillaBlock.isAir() && isRavinBiome(reader, v) && isAirCollumn(chunkData, v, 30)){
                 for (int i=collumnHeigth; i<airColumn; i++){
                     chunkData.setBlock(new IntVector(v.x(), i, v.z()), vanillaBlock);
@@ -79,7 +80,7 @@ class AbsoluteMerger implements Merger {
     /** return the 1st block 4 blocks under surface or heigth_ */
     private int getLowerBlockToRemove(Reader reader, int x, int z, Block defaultBlock){
         int lbtr = this.height_+4;
-        while(!reader.blockAt(x, lbtr, z).orElse(defaultBlock).isSolid()){
+        while(!reader.blockAt(x, lbtr, z).orElse(defaultBlock).isSolid() && lbtr>-64){
             lbtr--;
         }
         return lbtr-4;
