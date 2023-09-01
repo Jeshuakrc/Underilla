@@ -1,5 +1,9 @@
 package com.jkantrell.mc.underilla.core.generation;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Predicate;
 import com.jkantrell.mc.underilla.core.api.Block;
 import com.jkantrell.mc.underilla.core.api.ChunkData;
 import com.jkantrell.mc.underilla.core.api.HeightMapType;
@@ -8,8 +12,6 @@ import com.jkantrell.mc.underilla.core.reader.ChunkReader;
 import com.jkantrell.mc.underilla.core.reader.WorldReader;
 import com.jkantrell.mc.underilla.core.vector.LocatedBlock;
 import com.jkantrell.mca.MCAUtil;
-import java.util.*;
-import java.util.function.Predicate;
 
 public class Generator {
 
@@ -18,7 +20,7 @@ public class Generator {
     private final WorldReader worldReader_;
     private final Merger merger_;
     private final GenerationConfig config_;
-
+    public static Map<String, Long> times;
 
     //CONSTRUCTORS
     public Generator(WorldReader worldReader, GenerationConfig config) {
@@ -27,6 +29,9 @@ public class Generator {
         this.merger_ = config_.mergeStrategy.equals(MergeStrategy.RELATIVE)
                 ? new RelativeMerger(this.worldReader_, config_.mergeUpperLimit, config_.mergeLowerLimit, config_.mergeDepth, config_.mergeBlendRange, config_.keepUndergroundBiomes, config_.preserveBiomes, config_.keepReferenceWorldOres)
                 : new AbsoluteMerger(this.worldReader_, config_.mergeStrategy.equals(MergeStrategy.NONE) ? -64 : config_.mergeLimit, config_.preserveBiomes, config.ravinBiomes);
+        times = new HashMap<>();
+        times.put("mergeLand", 0L);
+        times.put("mergeBiomes", 0L);
     }
 
     public int getBaseHeight(WorldInfo worldInfo, int x, int z, HeightMapType heightMap) {
@@ -50,9 +55,13 @@ public class Generator {
     }
 
     public void generateSurface(ChunkReader reader, ChunkData chunkData) {
+        long time = System.currentTimeMillis();
         this.merger_.mergeLand(reader, chunkData);
+        times.put("mergeLand", times.get("mergeLand")+System.currentTimeMillis()-time);
         if (config_.transferBiomes) {
+            time = System.currentTimeMillis();
             this.merger_.mergeBiomes(reader, chunkData);
+            times.put("mergeBiomes", times.get("mergeBiomes")+System.currentTimeMillis()-time);
         }
     }
 

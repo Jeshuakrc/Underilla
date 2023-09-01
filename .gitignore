@@ -123,3 +123,6 @@ run/
 
 # Ignore Gradle build output directory
 build
+
+
+.vscode/
