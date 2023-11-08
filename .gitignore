@@ -19,7 +19,7 @@ out/
 *.ctxt
 
 # Package Files #
-*.jar
+# *.jar
 *.war
 *.nar
 *.ear
