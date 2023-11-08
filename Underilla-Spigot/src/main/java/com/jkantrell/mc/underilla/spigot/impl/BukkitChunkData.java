@@ -1,11 +1,18 @@
 package com.jkantrell.mc.underilla.spigot.impl;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import org.bukkit.Bukkit;
 import org.bukkit.block.Biome;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.craftbukkit.v1_19_R3.block.CraftBlock;
-import org.bukkit.craftbukkit.v1_19_R3.generator.CraftChunkData;
+import org.bukkit.craftbukkit.v1_20_R2.generator.CraftChunkData;
+import org.bukkit.craftbukkit.v1_20_R2.util.CraftNamespacedKey;
 import com.jkantrell.mc.underilla.core.api.Block;
 import com.jkantrell.mc.underilla.core.api.ChunkData;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.chunk.ChunkAccess;
 
 public class BukkitChunkData implements ChunkData {
@@ -19,6 +26,7 @@ public class BukkitChunkData implements ChunkData {
 
     // FIELDS
     private CraftChunkData internal_;
+    private static final Map<Biome, Holder.Reference<net.minecraft.world.level.biome.Biome>> biomeCache = new HashMap<>();
 
 
     // CONSTRUCTORS
@@ -64,8 +72,23 @@ public class BukkitChunkData implements ChunkData {
         if (!(biome instanceof BukkitBiome bukkitBiome)) {
             return;
         }
+        // TODO to test. It have been changed for 1.20.2 (Save in map may cause issue)
+        // access.setBiome(x, y, z, CraftBlock.biomeToBiomeBase(access.biomeRegistry, bukkitBiome.getBiome()));
+
         ChunkAccess access = this.internal_.getHandle();
-        access.setBiome(x, y, z, CraftBlock.biomeToBiomeBase(access.biomeRegistry, bukkitBiome.getBiome()));
+        if (!biomeCache.containsKey(bukkitBiome.getBiome())) { // if biome isn't in cache yet: add it
+            // Next line is from https://github.com/FreeSoccerHDX/AdvancedWorldCreatorAPI
+            Optional<Holder.Reference<net.minecraft.world.level.biome.Biome>> optional = access.biomeRegistry
+                    .getHolder(ResourceKey.create(Registries.BIOME, CraftNamespacedKey.toMinecraft(bukkitBiome.getBiome().getKey())));
+            if (optional.isPresent()) {
+                biomeCache.put(bukkitBiome.getBiome(), optional.get());
+            } else {
+                Bukkit.getLogger().warning("Biome not found in " + x + " " + y + " " + z + ": " + bukkitBiome.getBiome().getKey());
+                return;
+            }
+        }
+        // add biome from biome cache map.
+        access.setBiome(x, y, z, biomeCache.get(bukkitBiome.getBiome()));
     }
 
     // @Override

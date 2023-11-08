@@ -13,14 +13,14 @@ repositories {
 }
 
 group = 'com.Jkantrell.mc'
-version = '1.1.6'
+version = '1.2.0'
 java.sourceCompatibility = JavaVersion.VERSION_17
 
 dependencies {
-    paperweightDevelopmentBundle 'io.papermc.paper:dev-bundle:1.19.4-R0.1-SNAPSHOT'
+    paperweightDevelopmentBundle 'io.papermc.paper:dev-bundle:1.20.2-R0.1-SNAPSHOT'
     implementation 'com.jkantrell:Yamlizer:main-SNAPSHOT'
     implementation project(':Underilla-Core')
-    compileOnly 'org.spigotmc:spigot:1.19.4-R0.1-SNAPSHOT:remapped-mojang'
+    compileOnly 'org.spigotmc:spigot:1.20.2-R0.1-SNAPSHOT:remapped-mojang'
 }
 
 shadowJar {
