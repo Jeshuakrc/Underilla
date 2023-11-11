@@ -116,10 +116,9 @@ class AbsoluteMerger implements Merger {
         VectorIterable iterable = new VectorIterable(0, 4, -64, chunkData.getMaxHeight() >> 2, 0, 4);
         for (Vector<Integer> v : iterable) {
             Biome biome = reader.biomeAtCell(v).orElse(null);
-            if (biome == null) {
-                continue;
+            if (biome != null) {
+                chunkData.setBiome(v, biome);
             }
-            chunkData.setBiome(v, biome);
         }
         // biome set for the column
         // Biome [] biomes = new Biome[256];
