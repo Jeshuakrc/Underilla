@@ -65,11 +65,12 @@ class AbsoluteMerger implements Merger {
             // Generator.addTime("Calculate lower block to remove", startTime);
 
             // startTime = System.currentTimeMillis();
-            // Place the custom world bloc over 55 (or -64 if is preseved biome) or if it is a custom ore or if it is air, or if vanilla
-            // world have watter or grass over 30
+            // Place the custom world bloc over 55 (or -64 if is preseved biome) or if it is a custom ore or if it is air,
+            // or if vanilla world have watter or grass or sand over 30
             // and do not replace liquid vanilla blocks by air. (to preserve water and lava lackes)
             if (((v.y() > columnHeigth) || (isCustomWorldOreOutOfVanillaCaves(b, vanillaBlock))
-                    || (v.y() > 30 && (vanillaBlock.isLiquid() || vanillaBlock.getName().equalsIgnoreCase("GRASS_BLOCK"))))
+                    || (v.y() > 30 && (vanillaBlock.isLiquid() || vanillaBlock.getName().equalsIgnoreCase("GRASS_BLOCK")
+                            || vanillaBlock.getName().equalsIgnoreCase("SAND") || vanillaBlock.getName().equalsIgnoreCase("SAND_STONE"))))
                     || (b.isAir() && !vanillaBlock.isLiquid())) {
                 chunkData.setBlock(v, b);
             }
