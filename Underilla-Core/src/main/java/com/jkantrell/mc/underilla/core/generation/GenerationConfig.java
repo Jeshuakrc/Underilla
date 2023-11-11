@@ -1,12 +1,12 @@
 package com.jkantrell.mc.underilla.core.generation;
 
-import com.jkantrell.mc.underilla.core.api.Biome;
 import java.util.Collections;
 import java.util.List;
+import com.jkantrell.mc.underilla.core.api.Biome;
 
 public class GenerationConfig {
 
-    //FIELDS
+    // FIELDS
     public String referenceWorldName = "backup";
 
     public Boolean generateCaves = true;
@@ -23,11 +23,13 @@ public class GenerationConfig {
 
     public int mergeDepth = 12;
 
-    public List<? extends Biome> keepUndergroundBiomes = Collections.emptyList();
+    public List<? extends Biome> keptUndergroundBiomes = Collections.emptyList();
 
-    public boolean keepReferenceWorldOres = false;
+    public List<String> keptReferenceWorldBlocks = Collections.emptyList();
 
     public List<? extends Biome> preserveBiomes = Collections.emptyList();
+
+    public List<? extends Biome> ravinBiomes = Collections.emptyList();
 
     public int mergeLimit = 22;
 

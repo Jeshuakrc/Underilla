@@ -19,7 +19,7 @@ out/
 *.ctxt
 
 # Package Files #
-*.jar
+# *.jar
 *.war
 *.nar
 *.ear
@@ -123,3 +123,7 @@ run/
 
 # Ignore Gradle build output directory
 build
+
+
+.vscode/
+bin/

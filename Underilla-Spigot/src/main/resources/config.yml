@@ -9,9 +9,11 @@ generate_noodle_caves: true
 # Weather or not to transfer the reference world's biomes over to the merged world. IF false, only terrain is merged.
 transfer_biomes: true
 
+
 # How to merge vanilla and reference worlds.
-#   - ABSOLUTE: At a fixed Y height.
 #   - RELATIVE: At a given depth based on terrain height and air pockets at every X and Z coordinates.
+#   - SURFACE: At a fixed Y height based on custom world terrain height.
+#   - ABSOLUTE: At a fixed Y height.
 #   - NONE: Just... don't merge. Reference world will be re-generated without vanilla underground.
 strategy: "RELATIVE"
 
@@ -23,23 +25,23 @@ relative:
   # Below this height the RELATIVE strategy will be ignored, and only vanilla world terrain will be placed.
   # No effect if <= -64
   lower_limit: -64
-  # How deep reference world terrain should dig into vanilla word.
-  depth: 6
   # Which biomes keep in vanilla underground while overwriting reference world biomes.
   # Any biome not it this list will be replaced during generation.
   # Biomes must be defined as spigot Biome enum constants. https://hub.spigotmc.org/javadocs/spigot/org/bukkit/block/Biome.html
-  keep_underground_biomes:
+  kept_underground_biomes:
     - DEEP_DARK
     - DRIPSTONE_CAVES
     - LUSH_CAVES
-  # Weather or not to keep ores from reference world underground.
-  # It is usefull when vanilla_population is set to false.
-  keep_reference_world_ores: false
 
-# ABSOLUTE strategy exclusive settings
-absolute:
+# Mix strategy exclusive settings
+surface_and_absolute:
   # The Y height dividing reference terrain above and vanilla worlds below.
-  limit: 22
+  limit: 60
+
+# How deep reference world terrain should dig into vanilla word.
+relative_and_surface:
+  depth: 6
+
 
 # The range the transition between vanilla and reference worlds takes, the wider, the smoother.
 # <= 0 results in a sharp transition.
@@ -49,8 +51,16 @@ blend_range: 8
 # Biomes must be defined as spigot Biome enum constants. https://hub.spigotmc.org/javadocs/spigot/org/bukkit/block/Biome.html
 preserve_biomes: []
 
+# The biomes where caves will reach surfaces.
+# Biomes must be defined as spigot Biome enum constants. https://hub.spigotmc.org/javadocs/spigot/org/bukkit/block/Biome.html
+ravin_biomes: []
+
 # Weather or not to allow vanilla Minecraft populate/decorate over the reference world.
 vanilla_population: true
+
+# Weather or not to keep ores from reference world underground.
+# It is usefull when vanilla_population is set to false.
+kept_reference_world_blocks: []
 
 structures:
   # Weather or not to allow vanilla Minecraft generate structures in the world.

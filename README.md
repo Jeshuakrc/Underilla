@@ -17,7 +17,7 @@ It's original purpose is adding vanilla caves to custom [WorldPainter](https://w
 
 - Java 17.
 - A pre-generated world to use as a reference (Such as a WorldPainter world).
-- A Spigot(of forks) Minecraft Server of version 1.19.4.
+- A Spigot (or forks) Minecraft Server of version 1.20.2.
 
 ### Single player or non-Bukkit
 Underilla is currently only implemented as a Spigot plugin, so it runs only on Spigot servers. If you have a Vanilla, Forge or non Bukkit-based server; or looking for a single player experience; you may [use a local Spigot server](https://www.spigotmc.org/wiki/spigot-installation/) to pre-generate a fully-merged world and then copy the resulting world folder to your actual `saves` folder.
@@ -53,7 +53,7 @@ Underilla is significantly slower than the vanilla generator, as it doesn't rell
 - Due to Spigot's generation API, outside the reference world's area, heightmaps are broken, which has an impact on structures. You may work around this by pre-generating the whole reference world area, and then disabling Underilla.
 - NMS is used for biome placing, so this plugin isn't cross-version-compatible. A new release per every Minecraft release, and thus, this plugin won't work for any new prior-1.19.4 version.
 - Little underground lava and water pockets will translate to odd floating blobs in the final world if they overlap with large caves. Avoid such generation patterns.
-- Minecraft vanilla generator places structures based on the seed, not the actual biomes. This results in structures sometimes in totally unrelated biomes. Shipwrecks, monuments and other ocean structures are the most noticeable. To work around this, you may blacklist structures as you wish in the config file, and spawn them manually using `/place`.
+- Minecraft vanilla generator places structures based on the seed, not the actual biomes. This results in structures sometimes in totally unrelated biomes. Shipwrecks, monuments and other ocean structures are the most noticeable. To work around this, you may blacklist structures as you wish in the config file, and spawn them manually using `/place` or use a plugin to place them as [WorldPopulatorH](https://github.com/HydrolienF/WorldPopulatorH).
 
 ## WorldPainter considerations
 If you're going to plug your custom WorldPainter world into Underilla, consider before exporting:
@@ -65,4 +65,4 @@ If you're going to plug your custom WorldPainter world into Underilla, consider 
 
 
 ## Build
-Create working jar with `gradle buildDependents`
+Create working jar with `./gradlew buildDependents`
