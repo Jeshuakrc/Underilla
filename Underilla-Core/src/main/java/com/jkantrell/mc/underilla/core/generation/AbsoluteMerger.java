@@ -75,11 +75,8 @@ class AbsoluteMerger implements Merger {
                 chunkData.setBlock(v, b);
             }
 
-            // create ravines
+            // create ravines in biome that should have ravines
             if (v.y() == columnHeigth && vanillaBlock.isAir() && isRavinBiome(reader, v) && isAirCollumn(chunkData, v, 30)) {
-                // for (int i = columnHeigth; i < airColumn; i++) {
-                // chunkData.setBlock(new IntVector(v.x(), i, v.z()), airBlock);
-                // }
                 chunkData.setRegion(v.x(), columnHeigth, v.z(), v.x() + 1, airColumn, v.z() + 1, airBlock);
             }
             Generator.addTime("Merge block or not", startTime);

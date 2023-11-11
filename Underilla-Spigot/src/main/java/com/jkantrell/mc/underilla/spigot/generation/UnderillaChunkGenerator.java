@@ -152,11 +152,7 @@ public class UnderillaChunkGenerator extends ChunkGenerator {
         @Override
         public @NotNull Biome getBiome(@NotNull WorldInfo worldInfo, int x, int y, int z) {
             BukkitBiome biome = (BukkitBiome) worldReader_.biomeAt(x, y, z).orElse(null);
-            if (biome == null) {
-                return Biome.THE_VOID;
-                // TODO return a biome from the vanilla world ?
-            }
-            return biome.getBiome();
+            return biome == null ? Biome.PLAINS : biome.getBiome();
         }
 
         @Override
