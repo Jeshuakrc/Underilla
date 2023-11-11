@@ -26,11 +26,13 @@ public class Generator {
     public Generator(WorldReader worldReader, GenerationConfig config) {
         this.worldReader_ = worldReader;
         this.config_ = config;
-        this.merger_ = config_.mergeStrategy.equals(MergeStrategy.RELATIVE)
-                ? new RelativeMerger(this.worldReader_, config_.mergeUpperLimit, config_.mergeLowerLimit, config_.mergeDepth,
-                        config_.mergeBlendRange, config_.keepUndergroundBiomes, config_.preserveBiomes, config_.keepReferenceWorldOres)
-                : new AbsoluteMerger(this.worldReader_, config_.mergeStrategy.equals(MergeStrategy.NONE) ? -64 : config_.mergeLimit,
-                        config_.preserveBiomes, config.ravinBiomes);
+        this.merger_ = switch (config_.mergeStrategy) {
+            case RELATIVE -> new RelativeMerger(this.worldReader_, config_.mergeUpperLimit, config_.mergeLowerLimit, config_.mergeDepth,
+                    config_.mergeBlendRange, config_.keptUndergroundBiomes, config_.preserveBiomes, config_.keptReferenceWorldBlocks);
+            case SURFACE, ABSOLUTE, NONE -> new AbsoluteMerger(this.worldReader_,
+                    config_.mergeStrategy.equals(MergeStrategy.NONE) ? -64 : config_.mergeLimit, config_.preserveBiomes, config.ravinBiomes,
+                    config_.keptReferenceWorldBlocks, config_.mergeStrategy.equals(MergeStrategy.SURFACE) ? config_.mergeDepth : 0);
+        };
         times = new HashMap<>();
     }
 

@@ -18,13 +18,18 @@ class AbsoluteMerger implements Merger {
     private final WorldReader worldReader_;
     private final int height_;
     private final List<? extends Biome> preserveBiomes_, ravinBiomes_;
+    private final List<String> keptReferenceWorldBlocks_;
+    private final int mergeDepth_;
 
     // CONSTRUCTORS
-    AbsoluteMerger(WorldReader worldReader, int height, List<? extends Biome> preserveBiomes, List<? extends Biome> ravinBiomes) {
+    AbsoluteMerger(WorldReader worldReader, int height, List<? extends Biome> preserveBiomes, List<? extends Biome> ravinBiomes,
+            List<String> keptReferenceWorldBlocks, int mergeDepth) {
         this.worldReader_ = worldReader;
         this.height_ = height;
         this.preserveBiomes_ = preserveBiomes;
         this.ravinBiomes_ = ravinBiomes;
+        this.keptReferenceWorldBlocks_ = keptReferenceWorldBlocks;
+        this.mergeDepth_ = mergeDepth;
     }
 
 
@@ -70,7 +75,8 @@ class AbsoluteMerger implements Merger {
             // and do not replace liquid vanilla blocks by air. (to preserve water and lava lackes)
             if (((v.y() > columnHeigth) || (isCustomWorldOreOutOfVanillaCaves(b, vanillaBlock))
                     || (v.y() > 30 && (vanillaBlock.isLiquid() || vanillaBlock.getName().equalsIgnoreCase("GRASS_BLOCK")
-                            || vanillaBlock.getName().equalsIgnoreCase("SAND") || vanillaBlock.getName().equalsIgnoreCase("SAND_STONE"))))
+                            || vanillaBlock.getName().equalsIgnoreCase("SAND") || vanillaBlock.getName().equalsIgnoreCase("SAND_STONE")
+                            || vanillaBlock.getName().equalsIgnoreCase("GRAVEL"))))
                     || (b.isAir() && !vanillaBlock.isLiquid())) {
                 chunkData.setBlock(v, b);
             }
@@ -83,89 +89,31 @@ class AbsoluteMerger implements Merger {
         }
     }
 
-    /** return the 1st block 4 blocks under surface or heigth_ */
+    /** return the 1st block mergeDepth_ blocks under surface or heigth_ */
     private int getLowerBlockToRemove(Reader reader, int x, int z, Block defaultBlock) {
-        int lbtr = this.height_ + 4;
+        int lbtr = this.height_ + mergeDepth_;
         while (!reader.blockAt(x, lbtr, z).orElse(defaultBlock).isSolid() && lbtr > -64) {
             lbtr--;
         }
-        return lbtr - 4;
+        return lbtr - mergeDepth_;
     }
 
     @Override
     public void mergeBiomes(ChunkReader reader, ChunkData chunkData) {
         // No need to set biome for chunk. It's done by the generator.
-
-        // VectorIterable iterable = new VectorIterable(0, 16, -64, 256, 0, 16);
-        // VectorIterable iterable = new VectorIterable(0, 16, 64, 65, 0, 16);
-        // Chunk chunk = Bukkit.getWorld(reader.getWorldName()).getChunkAt(reader.getX(), reader.getZ());
-        // Set biome for the column by using same function, set biome.
-        // for (Vector<Integer> v : iterable) {
-        // Biome biome = reader.biomeAt(v).orElse(null);
-        // if (biome == null) {
-        // continue;
-        // }
-        // chunkData.setBiome(v, biome);
-        // }
-        // Instead of taking 5% of merge time, iterate over every block take 60% of merge time.
-        // biome set block by block
-        // VectorIterable iterable = new VectorIterable(0, 16, -64, 256, 0, 16);
-        // for (Vector<Integer> v : iterable) {
-        // Biome biome = reader.biomeAt(v).orElse(null);
-        // if (biome == null) { continue; }
-        // chunkData.setBiome(v, biome);
-        // }
-
-
-        // // biome set by 4*4*4 (default)
-        // VectorIterable iterable = new VectorIterable(0, 4, -64, chunkData.getMaxHeight() >> 2, 0, 4);
-        // for (Vector<Integer> v : iterable) {
-        // Biome biome = reader.biomeAtCell(v).orElse(null);
-        // if (biome != null) {
-        // chunkData.setBiome(v, biome);
-        // }
-        // }
-
-
-        // biome set for the column
-        // Biome [] biomes = new Biome[256];
-        // VectorIterable iterable = new VectorIterable(0, 16, 64, 65, 0, 16);
-        // // int lastX = -1;
-        // // int lastZ = -1;
-        // // Biome biome = null;
-        // int k=0;
-        // for (Vector<Integer> v : iterable) {
-        // biomes[k]=reader.biomeAt(v).orElse(null);
-        // k++;
-        // // // Change biome for column
-        // // if(v.x()!=lastX || v.z()!=lastZ || biome==null){
-        // // lastX = v.x();
-        // // lastZ = v.z();
-        // // // v.setY(-64);
-        // // biome = reader.biomeAt(v).orElse(null);
-        // // System.out.println("set biome for "+absoluteCoordinates(reader.getX(), reader.getZ(), v.clone())+" to "+biome);
-        // // }
-        // // if (biome == null) { continue; }
-        // // chunkData.setBiome(v, biome);
-        // }
-        // chunkData.setBiomes(biomes, reader.getX(), reader.getZ());
     }
 
 
     // private --------------------------------------------------------------------------------------------------------
     /**
-     * Return true if this block is an ore in the custom world and a solid block in vanilla world (This avoid to have ores floating in the
-     * air in vanilla caves).
+     * Return true if this block is a block to preserve from the custom world and a solid block in vanilla world (This avoid to have ores
+     * floating in the air in vanilla caves).
      * 
      * @param b            the block to check if is ore
      * @param vanillaBlock the block in vanilla world
      */
-    private static List<String> notToRemove = List.of("COAL_ORE", "COPPER_ORE", "DIAMOND_ORE", "EMERALD_ORE", "GOLD_ORE", "IRON_ORE",
-            "LAPIS_ORE", "REDSTONE_ORE", "DEEPSLATE_COAL_ORE", "DEEPSLATE_COPPER_ORE", "DEEPSLATE_DIAMOND_ORE", "DEEPSLATE_EMERALD_ORE",
-            "DEEPSLATE_GOLD_ORE", "DEEPSLATE_IRON_ORE", "DEEPSLATE_LAPIS_ORE", "DEEPSLATE_REDSTONE_ORE", "ANDESITE", "DIORITE", "GRANITE",
-            "QUARTZ_BLOCK", "GRAVEL", "NETHER_QUARTZ_ORE");
     private boolean isCustomWorldOreOutOfVanillaCaves(Block b, Block vanillaBlock) {
-        return notToRemove.contains(b.getName().toUpperCase()) && (vanillaBlock == null || vanillaBlock.isSolid());
+        return keptReferenceWorldBlocks_.contains(b.getName().toUpperCase()) && (vanillaBlock == null || vanillaBlock.isSolid());
     }
     /** Return true if this biome need to be only custom world */
     private boolean isPreservedBiome(ChunkReader reader, Vector<Integer> v) {
@@ -185,21 +133,4 @@ class AbsoluteMerger implements Merger {
         }
         return true;
     }
-
-
-    // PRIVATE UTIL
-    // private static Vector<Integer> absoluteCoordinates(int chunkX, int chunkZ, Vector<Integer> v) {
-    // v.addX(chunkX * 16);
-    // v.addZ(chunkZ * 16);
-    // return v;
-    // }
-    // private static Vector<Integer> relativeCoordinates(Vector<Integer> v) {
-    // v.setX(Math.floorMod(v.x(), 16));
-    // v.setZ(Math.floorMod(v.z(), 16));
-    // return v;
-    // }
-    // private static boolean isInChunk(int chunkX, int chunkZ, Vector<Integer> v) {
-    // boolean x = MCAUtil.blockToChunk(v.x()) == chunkX, z = MCAUtil.blockToChunk(v.z()) == chunkZ;
-    // return x && z;
-    // }
 }

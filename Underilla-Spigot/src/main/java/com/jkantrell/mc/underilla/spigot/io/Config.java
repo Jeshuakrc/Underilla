@@ -1,21 +1,21 @@
 package com.jkantrell.mc.underilla.spigot.io;
 
-import com.jkantrell.mc.underilla.spigot.impl.BukkitBiome;
-import com.jkantrell.mc.underilla.core.generation.GenerationConfig;
-import com.jkantrell.mc.underilla.core.generation.MergeStrategy;
-import com.jkantrell.yamlizer.yaml.AbstractYamlConfig;
-import com.jkantrell.yamlizer.yaml.ConfigField;
-import com.jkantrell.yamlizer.yaml.YamlElementType;
+import java.util.Collections;
+import java.util.List;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.block.Biome;
 import org.bukkit.generator.structure.Structure;
-import java.util.Collections;
-import java.util.List;
+import com.jkantrell.mc.underilla.core.generation.GenerationConfig;
+import com.jkantrell.mc.underilla.core.generation.MergeStrategy;
+import com.jkantrell.mc.underilla.spigot.impl.BukkitBiome;
+import com.jkantrell.yamlizer.yaml.AbstractYamlConfig;
+import com.jkantrell.yamlizer.yaml.ConfigField;
+import com.jkantrell.yamlizer.yaml.YamlElementType;
 
 public class Config extends AbstractYamlConfig {
 
-    //CONSTRUCTORS
+    // CONSTRUCTORS
     public Config(String filePath) {
         super(filePath);
         this.yamlizer.addSerializationRule(Structure.class, (element, type) -> {
@@ -25,7 +25,7 @@ public class Config extends AbstractYamlConfig {
     }
 
 
-    //FIELDS
+    // FIELDS
     @ConfigField(path = "reference_world")
     public String referenceWorldName = "backup";
 
@@ -47,16 +47,16 @@ public class Config extends AbstractYamlConfig {
     @ConfigField(path = "relative.lower_limit")
     public int mergeLowerLimit = -64;
 
-    @ConfigField(path = "relative.depth")
+    @ConfigField(path = "relative_and_surface.depth")
     public int mergeDepth = 12;
 
-    @ConfigField(path = "relative.keep_underground_biomes")
-    public List<Biome> keepUndergroundBiomes = List.of(Biome.DEEP_DARK, Biome.DRIPSTONE_CAVES, Biome.LUSH_CAVES);
+    @ConfigField(path = "relative.kept_underground_biomes")
+    public List<Biome> keptUndergroundBiomes = List.of(Biome.DEEP_DARK, Biome.DRIPSTONE_CAVES, Biome.LUSH_CAVES);
 
-    @ConfigField(path = "relative.keep_reference_world_ores")
-    public boolean keepReferenceWorldOres = false;
+    @ConfigField(path = "kept_reference_world_blocks")
+    public List<String> keptReferenceWorldBlocks = List.of();
 
-    @ConfigField(path = "absolute.limit")
+    @ConfigField(path = "surface_and_absolute.limit")
     public int mergeLimit = 22;
 
     @ConfigField(path = "blend_range")
@@ -85,8 +85,8 @@ public class Config extends AbstractYamlConfig {
         r.mergeUpperLimit = this.mergeUpperLimit;
         r.mergeLowerLimit = this.mergeLowerLimit;
         r.mergeDepth = this.mergeDepth;
-        r.keepUndergroundBiomes = this.keepUndergroundBiomes.stream().map(BukkitBiome::new).toList();
-        r.keepReferenceWorldOres = this.keepReferenceWorldOres;
+        r.keptUndergroundBiomes = this.keptUndergroundBiomes.stream().map(BukkitBiome::new).toList();
+        r.keptReferenceWorldBlocks = this.keptReferenceWorldBlocks;
         r.preserveBiomes = this.preserveBiomes.stream().map(BukkitBiome::new).toList();
         r.ravinBiomes = this.ravinBiomes.stream().map(BukkitBiome::new).toList();
         r.mergeLimit = this.mergeLimit;
