@@ -181,18 +181,18 @@ class AbsoluteMerger implements Merger {
 
 
     // PRIVATE UTIL
-    private static Vector<Integer> absoluteCoordinates(int chunkX, int chunkZ, Vector<Integer> v) {
-        v.addX(chunkX * 16);
-        v.addZ(chunkZ * 16);
-        return v;
-    }
-    private static Vector<Integer> relativeCoordinates(Vector<Integer> v) {
-        v.setX(Math.floorMod(v.x(), 16));
-        v.setZ(Math.floorMod(v.z(), 16));
-        return v;
-    }
-    private static boolean isInChunk(int chunkX, int chunkZ, Vector<Integer> v) {
-        boolean x = MCAUtil.blockToChunk(v.x()) == chunkX, z = MCAUtil.blockToChunk(v.z()) == chunkZ;
-        return x && z;
-    }
+    // private static Vector<Integer> absoluteCoordinates(int chunkX, int chunkZ, Vector<Integer> v) {
+    // v.addX(chunkX * 16);
+    // v.addZ(chunkZ * 16);
+    // return v;
+    // }
+    // private static Vector<Integer> relativeCoordinates(Vector<Integer> v) {
+    // v.setX(Math.floorMod(v.x(), 16));
+    // v.setZ(Math.floorMod(v.z(), 16));
+    // return v;
+    // }
+    // private static boolean isInChunk(int chunkX, int chunkZ, Vector<Integer> v) {
+    // boolean x = MCAUtil.blockToChunk(v.x()) == chunkX, z = MCAUtil.blockToChunk(v.z()) == chunkZ;
+    // return x && z;
+    // }
 }
