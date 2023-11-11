@@ -7,16 +7,19 @@ import java.util.Random;
 import org.bukkit.Bukkit;
 import org.bukkit.HeightMap;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_20_R2.generator.CraftChunkData;
+import org.bukkit.block.Biome;
+import org.bukkit.generator.BiomeProvider;
 import org.bukkit.generator.BlockPopulator;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.generator.LimitedRegion;
 import org.bukkit.generator.WorldInfo;
+import org.jetbrains.annotations.NotNull;
 import com.jkantrell.mc.underilla.core.api.HeightMapType;
 import com.jkantrell.mc.underilla.core.generation.Generator;
 import com.jkantrell.mc.underilla.core.reader.ChunkReader;
 import com.jkantrell.mc.underilla.core.reader.WorldReader;
 import com.jkantrell.mc.underilla.spigot.Underilla;
+import com.jkantrell.mc.underilla.spigot.impl.BukkitBiome;
 import com.jkantrell.mc.underilla.spigot.impl.BukkitChunkData;
 import com.jkantrell.mc.underilla.spigot.impl.BukkitRegionChunkData;
 import com.jkantrell.mc.underilla.spigot.impl.BukkitWorldInfo;
@@ -58,7 +61,7 @@ public class UnderillaChunkGenerator extends ChunkGenerator {
         if (reader.isEmpty()) {
             return;
         }
-        BukkitChunkData data = new BukkitChunkData((CraftChunkData) chunkData);
+        BukkitChunkData data = new BukkitChunkData(chunkData);
         Bukkit.getLogger().info("Generating chunk [" + chunkX + ", " + chunkZ + "] from " + this.worldReader_.getWorldName() + ".");
         this.delegate_.generateSurface(reader.get(), data);
     }
@@ -103,6 +106,15 @@ public class UnderillaChunkGenerator extends ChunkGenerator {
         return this.delegate_.shouldGenerateStructures(chunkX, chunkZ);
     }
 
+    @Override
+    public BiomeProvider getDefaultBiomeProvider(@NotNull WorldInfo worldInfo) {
+        if (CONFIG.transferBiomes) { // if biome need to be transfered from the custom world add a custom biome provider
+            return new BiomeProviderFromFile();
+        } else {
+            return super.getDefaultBiomeProvider(worldInfo);
+        }
+    }
+
 
     // CLASSES
     private static class Populator extends BlockPopulator {
@@ -134,4 +146,24 @@ public class UnderillaChunkGenerator extends ChunkGenerator {
             this.generator_.reInsertLiquids(reader, chunkData);
         }
     }
+
+    private class BiomeProviderFromFile extends BiomeProvider {
+
+        @Override
+        public @NotNull Biome getBiome(@NotNull WorldInfo worldInfo, int x, int y, int z) {
+            BukkitBiome biome = (BukkitBiome) worldReader_.biomeAt(x, y, z).orElse(null);
+            if (biome == null) {
+                return Biome.THE_VOID;
+                // TODO return a biome from the vanilla world ?
+            }
+            return biome.getBiome();
+        }
+
+        @Override
+        public @NotNull List<Biome> getBiomes(@NotNull WorldInfo worldInfo) {
+            return List.of(Biome.values()).stream().filter(b -> !b.equals(Biome.CUSTOM)).toList();
+        }
+
+    }
+
 }

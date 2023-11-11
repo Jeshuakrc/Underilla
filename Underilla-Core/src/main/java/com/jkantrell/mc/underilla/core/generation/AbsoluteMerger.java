@@ -36,7 +36,7 @@ class AbsoluteMerger implements Merger {
     }
     @Override
     public void mergeLand(ChunkReader reader, ChunkData chunkData) {
-        // long startTime = System.currentTimeMillis();
+        long startTime = System.currentTimeMillis();
         Block airBlock = reader.blockFromTag(MCAUtil.airBlockTag()).get();
         // int airColumn = Math.max(reader.airSectionsBottom(), -64);
         int airColumn = reader.airSectionsBottom();
@@ -46,25 +46,25 @@ class AbsoluteMerger implements Merger {
         int columnHeigth = this.height_;
         int lastX = -1;
         int lastZ = -1;
-        // Generator.addTime("Create VectorIterable to merge land", startTime);
+        Generator.addTime("Create VectorIterable to merge land", startTime);
         for (Vector<Integer> v : iterable) {
-            // startTime = System.currentTimeMillis();
+            startTime = System.currentTimeMillis();
             Block b = reader.blockAt(v).orElse(airBlock);
-            // Generator.addTime("Read block data from custom world", startTime);
-            // startTime = System.currentTimeMillis();
+            Generator.addTime("Read block data from custom world", startTime);
+            startTime = System.currentTimeMillis();
             Block vanillaBlock = chunkData.getBlock(v);
-            // Generator.addTime("Read block data from vanilla world", startTime);
+            Generator.addTime("Read block data from vanilla world", startTime);
 
             // For every collumn of bloc calculate the lower block to remove that migth be lower than height_.
-            // startTime = System.currentTimeMillis();
+            startTime = System.currentTimeMillis();
             if (v.x() != lastX || v.z() != lastZ) {
                 lastX = v.x();
                 lastZ = v.z();
                 columnHeigth = (isPreservedBiome(reader, v) ? -64 : getLowerBlockToRemove(reader, v.x(), v.z(), airBlock));
             }
-            // Generator.addTime("Calculate lower block to remove", startTime);
+            Generator.addTime("Calculate lower block to remove", startTime);
 
-            // startTime = System.currentTimeMillis();
+            startTime = System.currentTimeMillis();
             // Place the custom world bloc over 55 (or -64 if is preseved biome) or if it is a custom ore or if it is air,
             // or if vanilla world have watter or grass or sand over 30
             // and do not replace liquid vanilla blocks by air. (to preserve water and lava lackes)
@@ -82,7 +82,7 @@ class AbsoluteMerger implements Merger {
                 // }
                 chunkData.setRegion(v.x(), columnHeigth, v.z(), v.x() + 1, airColumn, v.z() + 1, airBlock);
             }
-            // Generator.addTime("Merge block or not", startTime);
+            Generator.addTime("Merge block or not", startTime);
         }
     }
 
@@ -97,11 +97,17 @@ class AbsoluteMerger implements Merger {
 
     @Override
     public void mergeBiomes(ChunkReader reader, ChunkData chunkData) {
+        // No need to set biome for chunk. It's done by the generator.
+
         // VectorIterable iterable = new VectorIterable(0, 16, -64, 256, 0, 16);
-        // // Chunk chunk = Bukkit.getWorld(reader.getWorldName()).getChunkAt(reader.getX(), reader.getZ());
+        // VectorIterable iterable = new VectorIterable(0, 16, 64, 65, 0, 16);
+        // Chunk chunk = Bukkit.getWorld(reader.getWorldName()).getChunkAt(reader.getX(), reader.getZ());
+        // Set biome for the column by using same function, set biome.
         // for (Vector<Integer> v : iterable) {
         // Biome biome = reader.biomeAt(v).orElse(null);
-        // if (biome == null) { continue; }
+        // if (biome == null) {
+        // continue;
+        // }
         // chunkData.setBiome(v, biome);
         // }
         // Instead of taking 5% of merge time, iterate over every block take 60% of merge time.
@@ -112,14 +118,18 @@ class AbsoluteMerger implements Merger {
         // if (biome == null) { continue; }
         // chunkData.setBiome(v, biome);
         // }
-        // biome set by 4*4*4 (default)
-        VectorIterable iterable = new VectorIterable(0, 4, -64, chunkData.getMaxHeight() >> 2, 0, 4);
-        for (Vector<Integer> v : iterable) {
-            Biome biome = reader.biomeAtCell(v).orElse(null);
-            if (biome != null) {
-                chunkData.setBiome(v, biome);
-            }
-        }
+
+
+        // // biome set by 4*4*4 (default)
+        // VectorIterable iterable = new VectorIterable(0, 4, -64, chunkData.getMaxHeight() >> 2, 0, 4);
+        // for (Vector<Integer> v : iterable) {
+        // Biome biome = reader.biomeAtCell(v).orElse(null);
+        // if (biome != null) {
+        // chunkData.setBiome(v, biome);
+        // }
+        // }
+
+
         // biome set for the column
         // Biome [] biomes = new Biome[256];
         // VectorIterable iterable = new VectorIterable(0, 16, 64, 65, 0, 16);

@@ -1,6 +1,8 @@
 package com.jkantrell.mc.underilla.core.generation;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 import com.jkantrell.mc.underilla.core.api.Block;
 import com.jkantrell.mc.underilla.core.api.ChunkData;
@@ -18,7 +20,7 @@ public class Generator {
     private final WorldReader worldReader_;
     private final Merger merger_;
     private final GenerationConfig config_;
-    // public static Map<String, Long> times;
+    public static Map<String, Long> times;
 
     // CONSTRUCTORS
     public Generator(WorldReader worldReader, GenerationConfig config) {
@@ -29,7 +31,7 @@ public class Generator {
                         config_.mergeBlendRange, config_.keepUndergroundBiomes, config_.preserveBiomes, config_.keepReferenceWorldOres)
                 : new AbsoluteMerger(this.worldReader_, config_.mergeStrategy.equals(MergeStrategy.NONE) ? -64 : config_.mergeLimit,
                         config_.preserveBiomes, config.ravinBiomes);
-        // times = new HashMap<>();
+        times = new HashMap<>();
     }
 
     public int getBaseHeight(WorldInfo worldInfo, int x, int z, HeightMapType heightMap) {
@@ -59,9 +61,9 @@ public class Generator {
     public void generateSurface(ChunkReader reader, ChunkData chunkData) {
         this.merger_.mergeLand(reader, chunkData);
         if (config_.transferBiomes) {
-            // long time = System.currentTimeMillis();
+            long time = System.currentTimeMillis();
             this.merger_.mergeBiomes(reader, chunkData);
-            // addTime("mergeBiomes", time);
+            addTime("mergeBiomes", time);
         }
     }
 
@@ -92,7 +94,7 @@ public class Generator {
 
     public boolean shouldGenerateStructures(int chunkX, int chunkZ) { return this.config_.generateStructures; }
 
-    // public static void addTime(String name, long startTime) {
-    // times.put(name, times.getOrDefault(name, 0l) + (System.currentTimeMillis() - startTime));
-    // }
+    public static void addTime(String name, long startTime) {
+        times.put(name, times.getOrDefault(name, 0l) + (System.currentTimeMillis() - startTime));
+    }
 }
