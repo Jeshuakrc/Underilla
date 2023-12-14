@@ -16,6 +16,7 @@ import org.bukkit.generator.WorldInfo;
 import org.jetbrains.annotations.NotNull;
 import com.jkantrell.mc.underilla.core.api.HeightMapType;
 import com.jkantrell.mc.underilla.core.generation.Generator;
+import com.jkantrell.mc.underilla.core.generation.MergeStrategy;
 import com.jkantrell.mc.underilla.core.reader.ChunkReader;
 import com.jkantrell.mc.underilla.core.reader.WorldReader;
 import com.jkantrell.mc.underilla.spigot.Underilla;
@@ -109,8 +110,8 @@ public class UnderillaChunkGenerator extends ChunkGenerator {
     @Override
     public BiomeProvider getDefaultBiomeProvider(@NotNull WorldInfo worldInfo) {
         // if biome need to be transfered from the custom world add a custom biome provider
-        // (Kept underground biomes are transfered in the mergeBiomes method not here)
-        if (CONFIG.transferBiomes && CONFIG.keptUndergroundBiomes.isEmpty()) {
+        // (For MergeStrategy.ABSOLUTE, kept underground biomes are transfered in the mergeBiomes method not here)
+        if (CONFIG.transferBiomes && (!CONFIG.mergeStrategy.equals(MergeStrategy.ABSOLUTE) || CONFIG.keptUndergroundBiomes.isEmpty())) {
             return new BiomeProviderFromFile();
         } else {
             return super.getDefaultBiomeProvider(worldInfo);
