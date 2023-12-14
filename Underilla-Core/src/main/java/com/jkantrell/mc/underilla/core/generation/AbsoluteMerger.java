@@ -15,7 +15,7 @@ import com.jkantrell.mca.MCAUtil;
 class AbsoluteMerger implements Merger {
 
     // FIELDS
-    private final WorldReader worldReader_;
+    // private final WorldReader worldReader_;
     private final int height_;
     private final List<? extends Biome> preserveBiomes_, ravinBiomes_;
     private final List<String> keptReferenceWorldBlocks_;
@@ -24,7 +24,7 @@ class AbsoluteMerger implements Merger {
     // CONSTRUCTORS
     AbsoluteMerger(WorldReader worldReader, int height, List<? extends Biome> preserveBiomes, List<? extends Biome> ravinBiomes,
             List<String> keptReferenceWorldBlocks, int mergeDepth) {
-        this.worldReader_ = worldReader;
+        // this.worldReader_ = worldReader;
         this.height_ = height;
         this.preserveBiomes_ = preserveBiomes;
         this.ravinBiomes_ = ravinBiomes;

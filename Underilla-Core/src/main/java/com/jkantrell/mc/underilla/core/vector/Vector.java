@@ -1,61 +1,45 @@
 package com.jkantrell.mc.underilla.core.vector;
 
+public abstract class Vector<T extends Number> implements Cloneable, Comparable<Object> {
 
-import java.lang.reflect.Constructor;
-import java.util.function.BiFunction;
-
-public abstract class Vector <T extends Number> implements Cloneable, Comparable {
-
-    //FIELDS
+    // FIELDS
     private T x_, y_, z_;
 
 
-    //CONSTRUCTORS
-    public Vector(T x, T y, T z) {
+    // CONSTRUCTORS
+    protected Vector(T x, T y, T z) {
         this.x_ = x;
         this.z_ = z;
         this.y_ = y;
     }
 
-    public Vector(Vector<T> original) {
-        this(original.x_, original.y_, original.z_);
-    }
+    protected Vector(Vector<T> original) { this(original.x_, original.y_, original.z_); }
 
 
-    //GETTER
-    public T x() {
-        return this.x_;
-    }
+    // GETTER
+    public T x() { return this.x_; }
 
-    public T y() {
-        return this.y_;
-    }
+    public T y() { return this.y_; }
 
-    public T z() {
-        return this.z_;
-    }
+    public T z() { return this.z_; }
 
 
-    //SETTER
-    public void setX(T x) {
-        this.x_ = x;
-    }
+    // SETTER
+    public void setX(T x) { this.x_ = x; }
 
-    public void setY(T y) {
-        this.y_ = y;
-    }
+    public void setY(T y) { this.y_ = y; }
 
-    public void setZ(T z) {
-        this.z_ = z;
-    }
+    public void setZ(T z) { this.z_ = z; }
 
 
-    //UTIL
+    // UTIL
     @Override
     public abstract Vector<T> clone();
     @Override
     public int compareTo(Object o) {
-        if (!(o instanceof Vector<?> v)) { return 0; }
+        if (!(o instanceof Vector<?> v)) {
+            return 0;
+        }
         return Double.compare(this.norm(), v.norm());
     }
     public Vector<T> addX(T x) {
@@ -77,18 +61,14 @@ public abstract class Vector <T extends Number> implements Cloneable, Comparable
         return this;
     }
     public double norm() {
-        double  x = Math.pow(this.x_.doubleValue(), 2),
-                y = Math.pow(this.y_.doubleValue(), 2),
-                z = Math.pow(this.z_.doubleValue(), 2);
+        double x = Math.pow(this.x_.doubleValue(), 2), y = Math.pow(this.y_.doubleValue(), 2), z = Math.pow(this.z_.doubleValue(), 2);
         return Math.sqrt(x + y + z);
     }
 
     @Override
-    public String toString() {
-        return String.format("(%s, %s, %s)", this.x_, this.y_, this.z_);
-    }
+    public String toString() { return String.format("(%s, %s, %s)", this.x_, this.y_, this.z_); }
 
 
-    //PRIVATE
+    // PRIVATE
     protected abstract T add(T a, T b);
 }
