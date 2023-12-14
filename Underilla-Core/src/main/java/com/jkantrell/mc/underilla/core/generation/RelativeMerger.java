@@ -136,12 +136,7 @@ public class RelativeMerger implements Merger {
     }
     /** Return true if this biome need to be only custom world */
     private boolean isPreservedBiome(ChunkReader reader, Vector v) {
-        try {
-            return this.preserveBiomes_.contains(reader.biomeAt(relativeCoordinates(v)).orElse(null));
-        } catch (IndexOutOfBoundsException e) {
-            System.out.println("IndexOutOfBoundsException for " + v);
-            return false;
-        }
+        return this.preserveBiomes_.contains(reader.biomeAt(relativeCoordinates(v)).orElse(null));
     }
     /**
      * Return true if this block is a block to preserve from the custom world and a solid block in vanilla world (This avoid to have ores

@@ -30,13 +30,13 @@ public class Config extends AbstractYamlConfig {
     public String referenceWorldName = "backup";
 
     @ConfigField(path = "generate_noodle_caves")
-    public Boolean generateCaves = true;
+    public boolean generateCaves = true;
 
     @ConfigField(path = "vanilla_population")
-    public Boolean vanillaPopulation = true;
+    public boolean vanillaPopulation = true;
 
     @ConfigField(path = "transfer_biomes")
-    public Boolean transferBiomes = true;
+    public boolean transferBiomes = true;
 
     @ConfigField(path = "strategy")
     public MergeStrategy mergeStrategy = MergeStrategy.RELATIVE;
@@ -69,7 +69,7 @@ public class Config extends AbstractYamlConfig {
     public List<Biome> ravinBiomes = List.of();
 
     @ConfigField(path = "structures.enabled")
-    public Boolean generateStructures = true;
+    public boolean generateStructures = true;
 
     @ConfigField(path = "structures.blacklist")
     public List<Structure> structureBlackList = Collections.emptyList();

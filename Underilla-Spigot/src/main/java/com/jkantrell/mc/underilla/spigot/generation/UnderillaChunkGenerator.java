@@ -108,7 +108,9 @@ public class UnderillaChunkGenerator extends ChunkGenerator {
 
     @Override
     public BiomeProvider getDefaultBiomeProvider(@NotNull WorldInfo worldInfo) {
-        if (CONFIG.transferBiomes) { // if biome need to be transfered from the custom world add a custom biome provider
+        // if biome need to be transfered from the custom world add a custom biome provider
+        // (Kept underground biomes are transfered in the mergeBiomes method not here)
+        if (CONFIG.transferBiomes && CONFIG.keptUndergroundBiomes.isEmpty()) {
             return new BiomeProviderFromFile();
         } else {
             return super.getDefaultBiomeProvider(worldInfo);

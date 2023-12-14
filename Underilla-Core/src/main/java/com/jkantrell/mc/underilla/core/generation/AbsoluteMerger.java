@@ -6,7 +6,6 @@ import com.jkantrell.mc.underilla.core.api.Block;
 import com.jkantrell.mc.underilla.core.api.ChunkData;
 import com.jkantrell.mc.underilla.core.reader.ChunkReader;
 import com.jkantrell.mc.underilla.core.reader.Reader;
-import com.jkantrell.mc.underilla.core.reader.WorldReader;
 import com.jkantrell.mc.underilla.core.vector.IntVector;
 import com.jkantrell.mc.underilla.core.vector.Vector;
 import com.jkantrell.mc.underilla.core.vector.VectorIterable;
@@ -15,16 +14,14 @@ import com.jkantrell.mca.MCAUtil;
 class AbsoluteMerger implements Merger {
 
     // FIELDS
-    // private final WorldReader worldReader_;
     private final int height_;
     private final List<? extends Biome> preserveBiomes_, ravinBiomes_;
     private final List<String> keptReferenceWorldBlocks_;
     private final int mergeDepth_;
 
     // CONSTRUCTORS
-    AbsoluteMerger(WorldReader worldReader, int height, List<? extends Biome> preserveBiomes, List<? extends Biome> ravinBiomes,
+    AbsoluteMerger(int height, List<? extends Biome> preserveBiomes, List<? extends Biome> ravinBiomes,
             List<String> keptReferenceWorldBlocks, int mergeDepth) {
-        // this.worldReader_ = worldReader;
         this.height_ = height;
         this.preserveBiomes_ = preserveBiomes;
         this.ravinBiomes_ = ravinBiomes;
@@ -37,7 +34,7 @@ class AbsoluteMerger implements Merger {
     @Override
     public void merge(ChunkReader reader, ChunkData chunkData) {
         this.mergeLand(reader, chunkData);
-        this.mergeBiomes(reader, chunkData);
+        // this.mergeBiomes(reader, chunkData); // No need to set biome for chunk. It's done by the generator.
     }
     @Override
     public void mergeLand(ChunkReader reader, ChunkData chunkData) {

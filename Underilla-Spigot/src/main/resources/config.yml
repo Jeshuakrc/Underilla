@@ -1,5 +1,5 @@
 
-# The world to cupy the terrain from
+# The world to copy the terrain from
 reference_world: "world_base"
 
 # Allow vanilla Minecraft engine to generate caves over reference world terrain.
