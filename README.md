@@ -18,7 +18,7 @@ It's original purpose is adding vanilla caves to custom [WorldPainter](https://w
 
 - Java 17.
 - A pre-generated world to use as a reference (Such as a WorldPainter world).
-- A Spigot (or forks) Minecraft Server of version 1.20.2.
+- A Spigot / paper (or forks) Minecraft Server of version [1.19.4 - 1.20.4]. It might work with upper version, but only 1.19.4, 1.20.1, 1.20.2, 1.20.4 have been tested.
 
 ### Single player or non-Bukkit
 Underilla is currently only implemented as a Spigot plugin, so it runs only on Spigot (or fork) servers. If you have a Vanilla, Forge or non Bukkit-based server; or looking for a single player experience; you may [use a local Spigot server](https://www.spigotmc.org/wiki/spigot-installation/) to pre-generate a fully-merged world and then copy the resulting world folder to your actual `saves` folder.
@@ -47,6 +47,17 @@ Underilla is currently only implemented as a Spigot plugin, so it runs only on S
 
 ### Pregenerate
 Underilla is significantly slower than the vanilla generator, as it doesn't relly on noise generation but on reading the reference world's region `nbt` files and analyzing its patterns to 'clone' its surface to a vanilla world. So, if your world is intended for heavy duty in a big server. It's recommended to pre-generate the whole reference world area with a chunk generator plugin, such as [Chunky](https://www.spigotmc.org/resources/chunky.81534/). I'm planning adding a build-in pre-generation system in the future.
+
+### Performances
+Huge map generation can takes hours or even days, here is some stats about performance to help you choose your configuration settings.
+All tests have been done on paper 1.20.4 on a 1000*1000 map generation of the same world painter generated world with default settings except strategy. We can't garanty that your computer will be as fast as mine, but it should be enoth to imagine how much time your world will need.
+- Minecraft Vanilla generator (No Underilla) 1:36
+- None strategy 3:25 (2.13 times longer than Vanilla generation)
+- Absolute stategy 4:34 (2.85 times longer than Vanilla generation)
+- Surface srategy 4:32 (2.83 times longer than Vanilla generation)
+- Relative strategy 11:07 (6.94 times longer than Vanilla generation)
+
+For a 50000 * 30000 world, it would take 40 hours to generate with Minecraft vanilla generator, 113 hours in surface strategie and 279 hours in relative.
 
 ## Known issues
 
