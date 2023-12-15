@@ -110,11 +110,14 @@ public class UnderillaChunkGenerator extends ChunkGenerator {
     @Override
     public BiomeProvider getDefaultBiomeProvider(@NotNull WorldInfo worldInfo) {
         // if biome need to be transfered from the custom world add a custom biome provider
-        // (For MergeStrategy.ABSOLUTE, kept underground biomes are transfered in the mergeBiomes method not here)
+        // (For MergeStrategy.RELATIVE, kept underground biomes are transfered in the mergeBiomes method not here)
         if (CONFIG.transferBiomes && (!CONFIG.mergeStrategy.equals(MergeStrategy.RELATIVE) || CONFIG.keptUndergroundBiomes.isEmpty())) {
+            Bukkit.getLogger()
+                    .info("Underilla Use the custom biome provider from file data. Structures will be generate in the right biome.");
             return new BiomeProviderFromFile();
         } else {
-            return super.getDefaultBiomeProvider(worldInfo);
+            Bukkit.getLogger().info("Underilla Use the default biome provider. Structures will be generate in bad biomes.");
+            return null;
         }
     }
 
