@@ -9,6 +9,18 @@ generate_noodle_caves: true
 # Weather or not to transfer the reference world's biomes over to the merged world. IF false, only terrain is merged.
 transfer_biomes: true
 
+# If true caves block will be transferred from caves_world to the merged world. Else it will be generated from a new vanilla world.
+# This is useful if you want to have a custom underground from an existing world. This is mandatory if you wich to transfer underground biomes as "LUSH_CAVES".
+transfer_world_from_caves_world: false
+# Directory where the caves world is stored. It must be in the same directory as the reference world.
+caves_world: "world_caves"
+# Witch biome to transfer from caves_world to the merged world.
+# Biomes must be defined as spigot Biome enum constants. https://hub.spigotmc.org/javadocs/spigot/org/bukkit/block/Biome.html
+transfer_caves_world_biomes:
+  - "LUSH_CAVES"
+  - "DRIPSTONE_CAVES"
+  - "DEEP_DARK"
+
 
 # How to merge vanilla and reference worlds.
 #   - RELATIVE: At a given depth based on terrain height and air pockets at every X and Z coordinates.
@@ -28,10 +40,8 @@ relative:
   # Which biomes keep in vanilla underground while overwriting reference world biomes.
   # Any biome not it this list will be replaced during generation.
   # Biomes must be defined as spigot Biome enum constants. https://hub.spigotmc.org/javadocs/spigot/org/bukkit/block/Biome.html
-  kept_underground_biomes:
-    - DEEP_DARK
-    - DRIPSTONE_CAVES
-    - LUSH_CAVES
+  # This won't work with biomes that Minecraft add at population time as "LUSH_CAVES", "DRIPSTONE_CAVES" and "DEEP_DARK. Use transfer_world_from_caves_world instead.
+  kept_underground_biomes: []
 
 # Mix strategy exclusive settings
 surface_and_absolute:
