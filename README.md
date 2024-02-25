@@ -18,7 +18,7 @@ It's original purpose is adding vanilla caves to custom [WorldPainter](https://w
 
 - Java 17.
 - A pre-generated world to use as a reference (Such as a WorldPainter world).
-- A Spigot / paper (or forks) Minecraft Server of version [1.19.4 - 1.20.4]. It might work with upper version, but only 1.19.4, 1.20.1, 1.20.2, 1.20.4 have been tested.
+- A Spigot / Paper (or forks) Minecraft Server of version [1.19.4 - 1.20.4]. It might work with upper version, but only 1.19.4, 1.20.1, 1.20.2, 1.20.4 have been tested.
 
 ### Single player or non-Bukkit
 Underilla is currently only implemented as a Spigot plugin, so it runs only on Spigot (or fork) servers. If you have a Vanilla, Forge or non Bukkit-based server; or looking for a single player experience; you may [use a local Spigot server](https://www.spigotmc.org/wiki/spigot-installation/) to pre-generate a fully-merged world and then copy the resulting world folder to your actual `saves` folder.
