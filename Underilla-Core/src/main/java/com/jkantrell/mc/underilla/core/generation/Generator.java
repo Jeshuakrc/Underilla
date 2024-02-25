@@ -12,6 +12,8 @@ import com.jkantrell.mc.underilla.core.reader.ChunkReader;
 import com.jkantrell.mc.underilla.core.reader.WorldReader;
 import com.jkantrell.mc.underilla.core.vector.LocatedBlock;
 import com.jkantrell.mca.MCAUtil;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 public class Generator {
 
@@ -60,8 +62,8 @@ public class Generator {
         return y + 1;
     }
 
-    public void generateSurface(ChunkReader reader, ChunkData chunkData) {
-        this.merger_.mergeLand(reader, chunkData);
+    public void generateSurface(@Nonnull ChunkReader reader, @Nonnull ChunkData chunkData, @Nullable ChunkReader cavesReader) {
+        this.merger_.mergeLand(reader, chunkData, cavesReader);
         // The only configuration where we need to merge biome here is when we want to transfer biomes from the reference world
         // & keep underground biomes.
         if (config_.needToMixBiomes()) {

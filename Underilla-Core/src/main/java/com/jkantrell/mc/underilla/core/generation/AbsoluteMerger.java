@@ -10,6 +10,7 @@ import com.jkantrell.mc.underilla.core.vector.IntVector;
 import com.jkantrell.mc.underilla.core.vector.Vector;
 import com.jkantrell.mc.underilla.core.vector.VectorIterable;
 import com.jkantrell.mca.MCAUtil;
+import jakarta.annotation.Nullable;
 
 class AbsoluteMerger implements Merger {
 
@@ -31,13 +32,13 @@ class AbsoluteMerger implements Merger {
 
 
     // IMPLEMENTATIONS
+    // @Override
+    // public void merge(ChunkReader reader, ChunkData chunkData) {
+    // this.mergeLand(reader, chunkData);
+    // // this.mergeBiomes(reader, chunkData); // No need to set biome for chunk. It's done by the generator.
+    // }
     @Override
-    public void merge(ChunkReader reader, ChunkData chunkData) {
-        this.mergeLand(reader, chunkData);
-        // this.mergeBiomes(reader, chunkData); // No need to set biome for chunk. It's done by the generator.
-    }
-    @Override
-    public void mergeLand(ChunkReader reader, ChunkData chunkData) {
+    public void mergeLand(ChunkReader reader, ChunkData chunkData, @Nullable ChunkReader cavesReader) {
         long startTime = System.currentTimeMillis();
         Block airBlock = reader.blockFromTag(MCAUtil.airBlockTag()).get();
         // int airColumn = Math.max(reader.airSectionsBottom(), -64);
@@ -76,6 +77,7 @@ class AbsoluteMerger implements Merger {
                             || vanillaBlock.getName().equalsIgnoreCase("GRAVEL"))))
                     || (b.isAir() && !vanillaBlock.isLiquid())) {
                 chunkData.setBlock(v, b);
+                // TODO : If block isn't set here and transfer_world_from_caves_world==true then set the block to the caves world block.
             }
 
             // create ravines in biome that should have ravines

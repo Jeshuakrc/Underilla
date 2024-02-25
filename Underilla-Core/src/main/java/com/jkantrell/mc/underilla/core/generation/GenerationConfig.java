@@ -15,6 +15,12 @@ public class GenerationConfig {
 
     public boolean transferBiomes = true;
 
+    public boolean transferWorldFromCavesWorld = false;
+
+    public String cavesWorldName = "caves_world";
+
+    public List<? extends Biome> transferCavesWorldBiomes = Collections.emptyList();
+
     public MergeStrategy mergeStrategy = MergeStrategy.RELATIVE;
 
     public int mergeUpperLimit = 320;

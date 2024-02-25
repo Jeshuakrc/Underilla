@@ -14,7 +14,7 @@ repositories {
 }
 
 group = 'com.Jkantrell.mc'
-version = '1.3.2'
+version = '1.3.3'
 java.sourceCompatibility = JavaVersion.VERSION_17
 
 dependencies {
@@ -27,6 +27,7 @@ dependencies {
 shadowJar {
     minimize()
     archiveFileName.set("${project.name}-${project.version}.jar")
+    relocate("jakarta.annotation","${project.group}.jakarta.annotation")
 }
 
 // tasks.build.dependsOn tasks.reobfJar // paperweight

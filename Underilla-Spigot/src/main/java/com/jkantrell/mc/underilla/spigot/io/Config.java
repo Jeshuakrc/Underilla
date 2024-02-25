@@ -38,6 +38,15 @@ public class Config extends AbstractYamlConfig {
     @ConfigField(path = "transfer_biomes")
     public boolean transferBiomes = true;
 
+    @ConfigField(path = "transfer_world_from_caves_world")
+    public boolean transferWorldFromCavesWorld = false;
+
+    @ConfigField(path = "caves_world")
+    public String cavesWorldName = "caves_world";
+
+    @ConfigField(path = "transfered_caves_world_biomes")
+    public List<Biome> transferCavesWorldBiomes = List.of(Biome.DEEP_DARK, Biome.DRIPSTONE_CAVES, Biome.LUSH_CAVES);
+
     @ConfigField(path = "strategy")
     public MergeStrategy mergeStrategy = MergeStrategy.RELATIVE;
 
@@ -51,7 +60,7 @@ public class Config extends AbstractYamlConfig {
     public int mergeDepth = 12;
 
     @ConfigField(path = "relative.kept_underground_biomes")
-    public List<Biome> keptUndergroundBiomes = List.of(Biome.DEEP_DARK, Biome.DRIPSTONE_CAVES, Biome.LUSH_CAVES);
+    public List<Biome> keptUndergroundBiomes = List.of();
 
     @ConfigField(path = "kept_reference_world_blocks")
     public List<String> keptReferenceWorldBlocks = List.of();
@@ -81,6 +90,9 @@ public class Config extends AbstractYamlConfig {
         r.generateCaves = this.generateCaves;
         r.vanillaPopulation = this.vanillaPopulation;
         r.transferBiomes = this.transferBiomes;
+        r.transferWorldFromCavesWorld = this.transferWorldFromCavesWorld;
+        r.cavesWorldName = this.cavesWorldName;
+        r.transferCavesWorldBiomes = this.transferCavesWorldBiomes.stream().map(BukkitBiome::new).toList();
         r.mergeStrategy = this.mergeStrategy;
         r.mergeUpperLimit = this.mergeUpperLimit;
         r.mergeLowerLimit = this.mergeLowerLimit;

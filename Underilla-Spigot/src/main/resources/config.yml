@@ -16,7 +16,7 @@ transfer_world_from_caves_world: false
 caves_world: "world_caves"
 # Witch biome to transfer from caves_world to the merged world.
 # Biomes must be defined as spigot Biome enum constants. https://hub.spigotmc.org/javadocs/spigot/org/bukkit/block/Biome.html
-transfer_caves_world_biomes:
+transfered_caves_world_biomes:
   - "LUSH_CAVES"
   - "DRIPSTONE_CAVES"
   - "DEEP_DARK"
@@ -41,6 +41,7 @@ relative:
   # Any biome not it this list will be replaced during generation.
   # Biomes must be defined as spigot Biome enum constants. https://hub.spigotmc.org/javadocs/spigot/org/bukkit/block/Biome.html
   # This won't work with biomes that Minecraft add at population time as "LUSH_CAVES", "DRIPSTONE_CAVES" and "DEEP_DARK. Use transfer_world_from_caves_world instead.
+  # This feature might be removed in future versions as transfered_caves_world_biomes do a better job.
   kept_underground_biomes: []
 
 # Mix strategy exclusive settings
