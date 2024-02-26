@@ -68,7 +68,12 @@ public class UnderillaChunkGenerator extends ChunkGenerator {
         }
         BukkitChunkData data = new BukkitChunkData(chunkData);
         Bukkit.getLogger().info("Generating chunk [" + chunkX + ", " + chunkZ + "] from " + this.worldReader_.getWorldName() + ".");
-        this.delegate_.generateSurface(reader.get(), data, this.worldCavesReader_.readChunk(chunkX, chunkZ).orElse(null));
+        ChunkReader cavesReader = null;
+        if (this.worldCavesReader_ != null) {
+            cavesReader = this.worldCavesReader_.readChunk(chunkX, chunkZ).orElse(null);
+        }
+        this.delegate_.generateSurface(reader.get(), data, cavesReader);
+
     }
 
 
