@@ -77,7 +77,13 @@ class AbsoluteMerger implements Merger {
                             || vanillaBlock.getName().equalsIgnoreCase("GRAVEL"))))
                     || (b.isAir() && !vanillaBlock.isLiquid())) {
                 chunkData.setBlock(v, b);
-                // TODO : If block isn't set here and transfer_world_from_caves_world==true then set the block to the caves world block.
+            } else {
+                if (cavesReader != null) {
+                    b = cavesReader.blockAt(v).orElse(null);
+                    if (b != null) {
+                        chunkData.setBlock(v, b);
+                    }
+                }
             }
 
             // create ravines in biome that should have ravines

@@ -167,8 +167,13 @@ public class UnderillaChunkGenerator extends ChunkGenerator {
         @Override
         public @Nonnull Biome getBiome(@Nonnull WorldInfo worldInfo, int x, int y, int z) {
             BukkitBiome biome = (BukkitBiome) worldReader_.biomeAt(x, y, z).orElse(null);
+            if (worldCavesReader_ != null) {
+                BukkitBiome cavesBiome = (BukkitBiome) worldCavesReader_.biomeAt(x, y, z).orElse(null);
+                if (cavesBiome != null && CONFIG.transferCavesWorldBiomes.contains(cavesBiome.getBiome())) {
+                    return cavesBiome.getBiome();
+                }
+            }
             return biome == null ? Biome.PLAINS : biome.getBiome();
-            // TODO : if we use a cave world and transfer some biomes, transfer the biomes here.
         }
 
         @Override
