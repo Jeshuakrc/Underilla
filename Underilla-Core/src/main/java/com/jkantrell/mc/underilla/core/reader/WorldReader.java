@@ -123,28 +123,35 @@ public abstract class WorldReader implements Reader {
 
 
         // UTIL
+        // We synchronized the methode to avoid concurrent access to the cache.
+        // Concurrent access cause queue_ and map_ to grow without never being reduced.
+        // We might win few ms by reducing the part of the code that is synchronized, but I don't think it's worth the potential bugs.
         T get(int x, int z) {
             Pair<Integer, Integer> pair = ImmutablePair.of(x, z);
-            T cached = this.map_.get(pair);
-            if (cached == null) {
-                return null;
+            synchronized (this) {
+                T cached = this.map_.get(pair);
+                if (cached == null) {
+                    return null;
+                }
+                this.queue_.remove(pair);
+                this.queue_.addFirst(pair);
+                return cached;
             }
-            this.queue_.remove(pair);
-            this.queue_.addFirst(pair);
-            return cached;
         }
         void put(int x, int z, T file) {
             Pair<Integer, Integer> pair = ImmutablePair.of(x, z);
-            if (map_.containsKey(pair)) {
-                this.queue_.remove(pair);
-            } else if (this.queue_.size() >= this.capacity_) {
-                try {
-                    Pair<Integer, Integer> temp = this.queue_.removeLast();
-                    this.map_.remove(temp);
-                } catch (NoSuchElementException ignored) {}
+            synchronized (this) {
+                if (map_.containsKey(pair)) {
+                    this.queue_.remove(pair);
+                } else if (this.queue_.size() >= this.capacity_) {
+                    try {
+                        Pair<Integer, Integer> temp = this.queue_.removeLast();
+                        this.map_.remove(temp);
+                    } catch (NoSuchElementException ignored) {}
+                }
+                this.map_.put(pair, file);
+                this.queue_.addFirst(pair);
             }
-            this.map_.put(pair, file);
-            this.queue_.addFirst(pair);
         }
     }
 }
