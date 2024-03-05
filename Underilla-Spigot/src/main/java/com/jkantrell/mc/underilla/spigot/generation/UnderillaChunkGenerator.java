@@ -67,7 +67,7 @@ public class UnderillaChunkGenerator extends ChunkGenerator {
             return;
         }
         BukkitChunkData data = new BukkitChunkData(chunkData);
-        Bukkit.getLogger().info("Generating chunk [" + chunkX + ", " + chunkZ + "] from " + this.worldReader_.getWorldName() + ".");
+        // Bukkit.getLogger().info("Generating chunk [" + chunkX + ", " + chunkZ + "] from " + this.worldReader_.getWorldName() + ".");
         ChunkReader cavesReader = null;
         if (this.worldCavesReader_ != null) {
             cavesReader = this.worldCavesReader_.readChunk(chunkX, chunkZ).orElse(null);
