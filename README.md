@@ -1,3 +1,12 @@
+[download]: https://img.shields.io/github/downloads/HydrolienF/Underilla/total
+[downloadLink]: https://hangar.papermc.io/Hydrolien/Underilla
+[discord-shield]: https://img.shields.io/discord/728592434577014825?label=discord
+[discord-invite]: https://discord.gg/RPNbtRSFqG
+
+
+[ ![download][] ][downloadLink]
+[ ![discord-shield][] ][discord-invite]
+
 # Underilla
 Underilla is a Bukkit / Spigot based plugin for Minecraft Servers to 'merge' existing custom Minecraft word surfaces and vanilla undergrounds. It works by allowing the vanilla generation engine create chunks as normal, then intercepting the generator and forcing the surface of the original world, which works as a reference. In oder worlds, Underilla generates a brand-new world with vanilla undergrounds, but cloning the surface of an already existing world.
 
