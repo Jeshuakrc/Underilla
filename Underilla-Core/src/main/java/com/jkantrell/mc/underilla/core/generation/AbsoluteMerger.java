@@ -55,7 +55,7 @@ class AbsoluteMerger implements Merger {
             Block b = reader.blockAt(v).orElse(airBlock);
             Generator.addTime("Read block data from custom world", startTime);
             startTime = System.currentTimeMillis();
-            Block vanillaBlock = chunkData.getBlock(v);
+            Block vanillaBlock = cavesReader == null ? chunkData.getBlock(v) : cavesReader.blockAt(v).orElse(airBlock);
             Generator.addTime("Read block data from vanilla world", startTime);
 
             // For every collumn of bloc calculate the lower block to remove that migth be lower than height_.
@@ -79,10 +79,7 @@ class AbsoluteMerger implements Merger {
                 chunkData.setBlock(v, b);
             } else {
                 if (cavesReader != null) {
-                    b = cavesReader.blockAt(v).orElse(null);
-                    if (b != null) {
-                        chunkData.setBlock(v, b);
-                    }
+                    chunkData.setBlock(v, vanillaBlock);
                 }
             }
 
