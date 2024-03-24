@@ -28,7 +28,9 @@ public class BukkitBlock implements Block {
     @Override
     public boolean isLiquid() {
         Material m = this.blockData_.getMaterial();
-        return m.equals(Material.WATER) || m.equals(Material.LAVA) || isWaterLogged();
+        return m.equals(Material.WATER) || m.equals(Material.LAVA) || isWaterLogged() || m.equals(Material.BUBBLE_COLUMN)
+                || m.equals(Material.SEAGRASS) || m.equals(Material.TALL_SEAGRASS) || m.equals(Material.KELP)
+                || m.equals(Material.KELP_PLANT);
     }
 
     @Override
