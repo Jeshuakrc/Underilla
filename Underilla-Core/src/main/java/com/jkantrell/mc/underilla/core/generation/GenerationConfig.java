@@ -9,11 +9,17 @@ public class GenerationConfig {
     // FIELDS
     public String referenceWorldName = "backup";
 
-    public Boolean generateCaves = true;
+    public boolean generateCaves = true;
 
-    public Boolean vanillaPopulation = true;
+    public boolean vanillaPopulation = true;
 
-    public Boolean transferBiomes = true;
+    public boolean transferBiomes = true;
+
+    public boolean transferWorldFromCavesWorld = false;
+
+    public String cavesWorldName = "caves_world";
+
+    public List<? extends Biome> transferCavesWorldBiomes = Collections.emptyList();
 
     public MergeStrategy mergeStrategy = MergeStrategy.RELATIVE;
 
@@ -35,5 +41,10 @@ public class GenerationConfig {
 
     public int mergeBlendRange = 8;
 
-    public Boolean generateStructures = true;
+    public boolean generateStructures = true;
+
+    public boolean needToMixBiomes() {
+        // true if we transfer biomes and we have kept underground biomes and we are using relative merge strategy
+        return this.transferBiomes && !this.keptUndergroundBiomes.isEmpty() && MergeStrategy.RELATIVE.equals(this.mergeStrategy);
+    }
 }

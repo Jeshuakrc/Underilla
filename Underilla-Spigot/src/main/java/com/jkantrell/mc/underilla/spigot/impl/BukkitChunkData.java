@@ -1,29 +1,23 @@
 package com.jkantrell.mc.underilla.spigot.impl;
 
-import java.util.HashMap;
-import java.util.Map;
-import org.bukkit.Bukkit;
-import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.craftbukkit.v1_20_R2.generator.CraftChunkData;
 import com.jkantrell.mc.underilla.core.api.Block;
 import com.jkantrell.mc.underilla.core.api.ChunkData;
-import net.minecraft.core.Holder;
 
 public class BukkitChunkData implements ChunkData {
 
     // FIELDS
-    private CraftChunkData internal_;
+    // private CraftChunkData internal_;
     private org.bukkit.generator.ChunkGenerator.ChunkData chunkData;
-    private static final Map<Biome, Holder.Reference<net.minecraft.world.level.biome.Biome>> biomeCache = new HashMap<>();
-    private static final World world = Bukkit.getWorld("world");
+    // private static final Map<Biome, Holder.Reference<net.minecraft.world.level.biome.Biome>> biomeCache = new HashMap<>();
+    // private static final World world = Bukkit.getWorld("world");
 
 
     // CONSTRUCTORS
     // public BukkitChunkData(CraftChunkData delegate) { this.internal_ = delegate; }
     public BukkitChunkData(org.bukkit.generator.ChunkGenerator.ChunkData chunkData) {
-        internal_ = (CraftChunkData) chunkData;
+        // internal_ = (CraftChunkData) chunkData;
         this.chunkData = chunkData;
     }
 

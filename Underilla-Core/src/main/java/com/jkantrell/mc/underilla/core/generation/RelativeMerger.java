@@ -15,6 +15,7 @@ import com.jkantrell.mc.underilla.core.vector.LocatedBlock;
 import com.jkantrell.mc.underilla.core.vector.Vector;
 import com.jkantrell.mc.underilla.core.vector.VectorIterable;
 import com.jkantrell.mca.MCAUtil;
+import jakarta.annotation.Nullable;
 
 public class RelativeMerger implements Merger {
 
@@ -47,13 +48,13 @@ public class RelativeMerger implements Merger {
 
 
     // OVERWRITES
+    // @Override
+    // public void merge(ChunkReader reader, ChunkData chunkData) {
+    // this.mergeLand(reader, chunkData);
+    // this.mergeBiomes(reader, chunkData);
+    // }
     @Override
-    public void merge(ChunkReader reader, ChunkData chunkData) {
-        this.mergeLand(reader, chunkData);
-        this.mergeBiomes(reader, chunkData);
-    }
-    @Override
-    public void mergeLand(ChunkReader reader, ChunkData chunkData) {
+    public void mergeLand(ChunkReader reader, ChunkData chunkData, @Nullable ChunkReader cavesReader) {
         Function<Vector<Integer>, Block> blockGetter = v -> chunkData.getBlock(RelativeMerger.relativeCoordinates(v.clone()));
 
         // Getting rid of top air column (KEY FOR PERFORMANCE)
@@ -80,8 +81,9 @@ public class RelativeMerger implements Merger {
                         .map(LocatedBlock::vector).map(v -> RelativeMerger.absoluteCoordinates(c.getX(), c.getZ(), v))
                         .forEach(fillVectors::add);
             } else {
-                c.locationsOf(m -> !m.isSolid(), airColumn, chunkData.getMinHeight()).stream() // Constraining the height up to the air
-                                                                                               // column is also key for performance
+
+                c.locationsOf(m -> !m.isSolid(), airColumn, chunkData.getMinHeight()).stream()
+                        // Constraining the height up to the air column is also key for performance
                         .map(LocatedBlock::vector).map(v -> RelativeMerger.absoluteCoordinates(c.getX(), c.getZ(), v))
                         .forEach(fillVectors::add);
             }
@@ -128,6 +130,10 @@ public class RelativeMerger implements Merger {
                     v = RelativeMerger.relativeCoordinates(v);
                     Block b = reader.blockAt(v).orElse(null);
                     if (b == null) {
+                        // If block isn't set here and transfer_world_from_caves_world==true then set the block to the caves world block.
+                        if (cavesReader != null) {
+                            b = cavesReader.blockAt(v).orElse(null);
+                        }
                         return;
                     }
                     chunkData.setBlock(v.x(), v.y(), v.z(), b);
@@ -136,12 +142,7 @@ public class RelativeMerger implements Merger {
     }
     /** Return true if this biome need to be only custom world */
     private boolean isPreservedBiome(ChunkReader reader, Vector v) {
-        try {
-            return this.preserveBiomes_.contains(reader.biomeAt(relativeCoordinates(v)).orElse(null));
-        } catch (IndexOutOfBoundsException e) {
-            System.out.println("IndexOutOfBoundsException for " + v);
-            return false;
-        }
+        return this.preserveBiomes_.contains(reader.biomeAt(relativeCoordinates(v)).orElse(null));
     }
     /**
      * Return true if this block is a block to preserve from the custom world and a solid block in vanilla world (This avoid to have ores

@@ -6,25 +6,23 @@ import com.jkantrell.mc.underilla.core.api.Block;
 import com.jkantrell.mc.underilla.core.api.ChunkData;
 import com.jkantrell.mc.underilla.core.reader.ChunkReader;
 import com.jkantrell.mc.underilla.core.reader.Reader;
-import com.jkantrell.mc.underilla.core.reader.WorldReader;
 import com.jkantrell.mc.underilla.core.vector.IntVector;
 import com.jkantrell.mc.underilla.core.vector.Vector;
 import com.jkantrell.mc.underilla.core.vector.VectorIterable;
 import com.jkantrell.mca.MCAUtil;
+import jakarta.annotation.Nullable;
 
 class AbsoluteMerger implements Merger {
 
     // FIELDS
-    private final WorldReader worldReader_;
     private final int height_;
     private final List<? extends Biome> preserveBiomes_, ravinBiomes_;
     private final List<String> keptReferenceWorldBlocks_;
     private final int mergeDepth_;
 
     // CONSTRUCTORS
-    AbsoluteMerger(WorldReader worldReader, int height, List<? extends Biome> preserveBiomes, List<? extends Biome> ravinBiomes,
+    AbsoluteMerger(int height, List<? extends Biome> preserveBiomes, List<? extends Biome> ravinBiomes,
             List<String> keptReferenceWorldBlocks, int mergeDepth) {
-        this.worldReader_ = worldReader;
         this.height_ = height;
         this.preserveBiomes_ = preserveBiomes;
         this.ravinBiomes_ = ravinBiomes;
@@ -34,13 +32,13 @@ class AbsoluteMerger implements Merger {
 
 
     // IMPLEMENTATIONS
+    // @Override
+    // public void merge(ChunkReader reader, ChunkData chunkData) {
+    // this.mergeLand(reader, chunkData);
+    // // this.mergeBiomes(reader, chunkData); // No need to set biome for chunk. It's done by the generator.
+    // }
     @Override
-    public void merge(ChunkReader reader, ChunkData chunkData) {
-        this.mergeLand(reader, chunkData);
-        this.mergeBiomes(reader, chunkData);
-    }
-    @Override
-    public void mergeLand(ChunkReader reader, ChunkData chunkData) {
+    public void mergeLand(ChunkReader reader, ChunkData chunkData, @Nullable ChunkReader cavesReader) {
         long startTime = System.currentTimeMillis();
         Block airBlock = reader.blockFromTag(MCAUtil.airBlockTag()).get();
         // int airColumn = Math.max(reader.airSectionsBottom(), -64);
@@ -54,10 +52,10 @@ class AbsoluteMerger implements Merger {
         Generator.addTime("Create VectorIterable to merge land", startTime);
         for (Vector<Integer> v : iterable) {
             startTime = System.currentTimeMillis();
-            Block b = reader.blockAt(v).orElse(airBlock);
+            Block customBlock = reader.blockAt(v).orElse(airBlock);
             Generator.addTime("Read block data from custom world", startTime);
             startTime = System.currentTimeMillis();
-            Block vanillaBlock = chunkData.getBlock(v);
+            Block vanillaBlock = cavesReader == null ? chunkData.getBlock(v) : cavesReader.blockAt(v).orElse(airBlock);
             Generator.addTime("Read block data from vanilla world", startTime);
 
             // For every collumn of bloc calculate the lower block to remove that migth be lower than height_.
@@ -73,12 +71,23 @@ class AbsoluteMerger implements Merger {
             // Place the custom world bloc over 55 (or -64 if is preseved biome) or if it is a custom ore or if it is air,
             // or if vanilla world have watter or grass or sand over 30
             // and do not replace liquid vanilla blocks by air. (to preserve water and lava lackes)
-            if (((v.y() > columnHeigth) || (isCustomWorldOreOutOfVanillaCaves(b, vanillaBlock))
+            if (((v.y() > columnHeigth) // block over surface or close to surface are kept from custom surface world.
+                    || (isCustomWorldOreOutOfVanillaCaves(customBlock, vanillaBlock)) // custom world ores are kept from custom world.
+                    // vanilla sea ground are replaced by custom world blocks.
                     || (v.y() > 30 && (vanillaBlock.isLiquid() || vanillaBlock.getName().equalsIgnoreCase("GRASS_BLOCK")
                             || vanillaBlock.getName().equalsIgnoreCase("SAND") || vanillaBlock.getName().equalsIgnoreCase("SAND_STONE")
                             || vanillaBlock.getName().equalsIgnoreCase("GRAVEL"))))
-                    || (b.isAir() && !vanillaBlock.isLiquid())) {
-                chunkData.setBlock(v, b);
+                    // Keep custom block if it's air to preserve custom world caves if there is any. (If vanilla block is liquid, we
+                    // preserve vanilla block as we want to avoid holes in vanilla underground lakes)
+                    || (customBlock.isAir() && !vanillaBlock.isLiquid())) {
+                // Use custom block
+                chunkData.setBlock(v, customBlock);
+            } else {
+                if (cavesReader != null) {
+                    // Use vanilla from caves world
+                    chunkData.setBlock(v, vanillaBlock);
+                }
+                // Use vanilla block from current world
             }
 
             // create ravines in biome that should have ravines
@@ -109,11 +118,11 @@ class AbsoluteMerger implements Merger {
      * Return true if this block is a block to preserve from the custom world and a solid block in vanilla world (This avoid to have ores
      * floating in the air in vanilla caves).
      * 
-     * @param b            the block to check if is ore
+     * @param customBlock  the block to check if is ore
      * @param vanillaBlock the block in vanilla world
      */
-    private boolean isCustomWorldOreOutOfVanillaCaves(Block b, Block vanillaBlock) {
-        return keptReferenceWorldBlocks_.contains(b.getName().toUpperCase()) && (vanillaBlock == null || vanillaBlock.isSolid());
+    private boolean isCustomWorldOreOutOfVanillaCaves(Block customBlock, Block vanillaBlock) {
+        return keptReferenceWorldBlocks_.contains(customBlock.getName().toUpperCase()) && (vanillaBlock == null || vanillaBlock.isSolid());
     }
     /** Return true if this biome need to be only custom world */
     private boolean isPreservedBiome(ChunkReader reader, Vector<Integer> v) {

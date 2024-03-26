@@ -10,12 +10,14 @@ import com.jkantrell.mc.underilla.spigot.generation.UnderillaChunkGenerator;
 import com.jkantrell.mc.underilla.spigot.impl.BukkitWorldReader;
 import com.jkantrell.mc.underilla.spigot.io.Config;
 import com.jkantrell.mc.underilla.spigot.listener.StructureEventListener;
+import jakarta.annotation.Nullable;
 
 public final class Underilla extends JavaPlugin {
 
     private static Underilla plugin;
     public static final Config CONFIG = new Config("");
     private BukkitWorldReader worldReader_ = null;
+    private @Nullable BukkitWorldReader worldCavesReader_ = null;
 
 
     @Override
@@ -25,7 +27,7 @@ public final class Underilla extends JavaPlugin {
             return super.getDefaultWorldGenerator(worldName, id);
         }
         this.getServer().getLogger().info("Using Underilla as world generator!");
-        return new UnderillaChunkGenerator(this.worldReader_);
+        return new UnderillaChunkGenerator(this.worldReader_, this.worldCavesReader_);
     }
 
     @Override
@@ -42,12 +44,23 @@ public final class Underilla extends JavaPlugin {
             e.printStackTrace();
         }
 
-        // Loading world
+        // Loading reference world
         try {
             this.worldReader_ = new BukkitWorldReader(Underilla.CONFIG.referenceWorldName);
             this.getServer().getLogger().info("World + '" + Underilla.CONFIG.referenceWorldName + "' found.");
         } catch (NoSuchFieldException e) {
+            this.getServer().getLogger().warning("No world with name '" + Underilla.CONFIG.referenceWorldName + "' found");
             e.printStackTrace();
+        }
+        // Loading caves world if we should use it.
+        if (Underilla.CONFIG.transferWorldFromCavesWorld) {
+            try {
+                this.getServer().getLogger().info("Loading caves world");
+                this.worldCavesReader_ = new BukkitWorldReader(Underilla.CONFIG.cavesWorldName);
+            } catch (NoSuchFieldException e) {
+                this.getServer().getLogger().warning("No world with name '" + Underilla.CONFIG.cavesWorldName + "' found");
+                e.printStackTrace();
+            }
         }
 
         // Registering listeners

@@ -1,12 +1,25 @@
-# Underilla for Spigot
+[download]: https://img.shields.io/github/downloads/HydrolienF/Underilla/total
+[downloadLink]: https://hangar.papermc.io/Hydrolien/Underilla
+[discord-shield]: https://img.shields.io/discord/728592434577014825?label=discord
+[discord-invite]: https://discord.gg/RPNbtRSFqG
+
+
+[ ![download][] ][downloadLink]
+[ ![discord-shield][] ][discord-invite]
+
+# Underilla
 Underilla is a Bukkit / Spigot based plugin for Minecraft Servers to 'merge' existing custom Minecraft word surfaces and vanilla undergrounds. It works by allowing the vanilla generation engine create chunks as normal, then intercepting the generator and forcing the surface of the original world, which works as a reference. In oder worlds, Underilla generates a brand-new world with vanilla undergrounds, but cloning the surface of an already existing world.
 
 It's original purpose is adding vanilla caves to custom [WorldPainter](https://www.worldpainter.net/) worlds, but it would perfectly work for any pre-generated world.
 
+![Underilla](https://github.com/HydrolienF/Underilla/assets/71718798/5d4c0812-443e-42db-90cf-a138f11ec6c9)
+
+
 ## Main features
-- Three merging strategies:
+- 4 merging strategies:
     - **None:** No actual vanilla underground noise is generated. `generate_noodle_caves` setting can still be on, to generate noodle caves.
     - **Absolute:** A Y coordinate value divides the original world surface and vanilla underground.
+    - **Surface:** Mix the original world surface and vanilla underground at a variable y that depends of original & vanilla world surface. It have the best racio generated world quality & performance.
     - **Relative:** This is the cool one. The reference world's surface will be dynamically carved into vanilla underground; which means there's no actual height-based division.
 - Custom caves also supported. If using Relative merge strategy, every non-solid block and surroundings will be preserved, thus, if the reference world has itself an underground system, it'll be transferred over to the merged world.
 - Heightmap fixed. Underilla re-calculates heightmaps when merging chunks, getting rid of floating and buried structures. Vanilla villagers and other structures are placed at the right height.
@@ -17,14 +30,14 @@ It's original purpose is adding vanilla caves to custom [WorldPainter](https://w
 
 - Java 17.
 - A pre-generated world to use as a reference (Such as a WorldPainter world).
-- A Spigot (or forks) Minecraft Server of version 1.20.2.
+- A Spigot / Paper (or forks) Minecraft Server of version [1.19.4 - 1.20.4]. It might work with upper version, but only 1.19.4, 1.20.1, 1.20.2, 1.20.4 have been tested.
 
 ### Single player or non-Bukkit
-Underilla is currently only implemented as a Spigot plugin, so it runs only on Spigot servers. If you have a Vanilla, Forge or non Bukkit-based server; or looking for a single player experience; you may [use a local Spigot server](https://www.spigotmc.org/wiki/spigot-installation/) to pre-generate a fully-merged world and then copy the resulting world folder to your actual `saves` folder.
+Underilla is currently only implemented as a Spigot plugin, so it runs only on Spigot (or fork) servers. If you have a Vanilla, Forge or non Bukkit-based server; or looking for a single player experience; you may [use a local Spigot server](https://www.spigotmc.org/wiki/spigot-installation/) to pre-generate a fully-merged world and then copy the resulting world folder to your actual `saves` folder.
 
 ### Installation
 
-1. Set up your Spigot server.
+1. Set up your Spigot (or fork) server.
 2. Download Underilla's `.jar`.
 3. Place Underilla's `.jar` file into the `./plugins` directory of your server. Create the folder if it doesn't exist already.
 4. Into the `./plugins` folder, create a new folder called `Underilla` and place a `config.yml` file in it. You may get the file from [this repo](Underilla-Spigot/src/main/resources/config.yml).
@@ -47,13 +60,23 @@ Underilla is currently only implemented as a Spigot plugin, so it runs only on S
 ### Pregenerate
 Underilla is significantly slower than the vanilla generator, as it doesn't relly on noise generation but on reading the reference world's region `nbt` files and analyzing its patterns to 'clone' its surface to a vanilla world. So, if your world is intended for heavy duty in a big server. It's recommended to pre-generate the whole reference world area with a chunk generator plugin, such as [Chunky](https://www.spigotmc.org/resources/chunky.81534/). I'm planning adding a build-in pre-generation system in the future.
 
+### Performances
+Huge map generation can takes hours or even days, here is some stats about performance to help you choose your configuration settings.
+All tests have been done on paper 1.20.4 on a 1000*1000 map generation of the same world painter generated world with default settings except strategy. We can't garanty that your computer will be as fast as mine, but it should be enoth to imagine how much time your world will need.
+- Minecraft Vanilla generator (No Underilla) 1:36
+- None strategy 3:25 (2.13 times longer than Vanilla generation)
+- Absolute stategy 4:34 (2.85 times longer than Vanilla generation)
+- Surface srategy 4:32 (2.83 times longer than Vanilla generation)
+- Relative strategy 11:07 (6.94 times longer than Vanilla generation)
+
+For a 50000 * 30000 world, it would take 40 hours to generate with Minecraft vanilla generator, 113 hours in surface strategie and 279 hours in relative.
+
 ## Known issues
 
 - Underilla's generation disables Minecraft's chunk blender, which means there will be sharp old-school chunk borders at the edge of the reference world's chunks. This may be tackled by trimming your custom world chunks around the edges to generate blended chunks ahead of time.
 - Due to Spigot's generation API, outside the reference world's area, heightmaps are broken, which has an impact on structures. You may work around this by pre-generating the whole reference world area, and then disabling Underilla.
-- NMS is used for biome placing, so this plugin isn't cross-version-compatible. A new release per every Minecraft release, and thus, this plugin won't work for any new prior-1.19.4 version.
-- Little underground lava and water pockets will translate to odd floating blobs in the final world if they overlap with large caves. Avoid such generation patterns.
-- Minecraft vanilla generator places structures based on the seed, not the actual biomes. This results in structures sometimes in totally unrelated biomes. Shipwrecks, monuments and other ocean structures are the most noticeable. To work around this, you may blacklist structures as you wish in the config file, and spawn them manually using `/place` or use a plugin to place them as [WorldPopulatorH](https://github.com/HydrolienF/WorldPopulatorH).
+- **Relative strategy only:** Little underground lava and water pockets will translate to odd floating blobs in the final world if they overlap with large caves. Avoid such generation patterns.
+- **With kept biome & relative strategy only**: As Underilla need to mix biome between the 2 world biome, it didn't edit Minecraft vanilla generator biome, this generator will places structures based on the seed, not the actual biomes. This results in structures sometimes in totally unrelated biomes. Shipwrecks, monuments and other ocean structures are the most noticeable. To work around this, you can get rid of kept biomes or you may blacklist structures as you wish in the config file, and spawn them manually using `/place` or use a plugin to place them as [WorldPopulatorH](https://github.com/HydrolienF/WorldPopulatorH).
 
 ## WorldPainter considerations
 If you're going to plug your custom WorldPainter world into Underilla, consider before exporting:
@@ -65,4 +88,8 @@ If you're going to plug your custom WorldPainter world into Underilla, consider 
 
 
 ## Build
-Create working jar with `./gradlew buildDependents`
+Create a working jar with `./gradlew buildDependents`
+
+## TODO
+Build-in pre-generation system.
+Allow to generate the 2nd world on the fly.
