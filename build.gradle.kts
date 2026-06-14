@@ -12,10 +12,10 @@ plugins {
 }
 
 group = "fr.formiko.mc.underilla"
-version = "2.3.3"
+version = "2.3.4"
 description="Generate vanilla cave in custom world."
-val mainMinecraftVersion = "1.21.11"
-val supportedMinecraftVersions = "1.21.5 - 1.21.11"
+val mainMinecraftVersion = "1.21.11" // 26.1.2
+val supportedMinecraftVersions = "1.21.5 - 26.1.2"
 val voidWorldGeneratorVersion = "1.3.12"
 val chunkyVersion = "1.4.55"
 
@@ -33,8 +33,9 @@ repositories {
 dependencies {
     // compileOnly("io.papermc.paper:paper-api:$mainMinecraftVersion-R0.1-SNAPSHOT") // without paperweight
     paperweight.paperDevBundle("$mainMinecraftVersion-R0.1-SNAPSHOT")
+    // paperweight.paperDevBundle("$mainMinecraftVersion.build.+")
     compileOnly("net.kyori:adventure-text-serializer-ansi:4.17.0") // TODO to remove when paper weight latest version will be fixed. It's supposed to be in paperweight.
-    // implementation("fr.formiko.mc.biomeutils:biomeutils:1.1.14") // Not needed since paper added more function to registery as registery.getTagValues().
+
     implementation("com.github.FormikoLudo:Utils:0.0.9")
     implementation("org.bstats:bstats-bukkit:3.1.0")
     implementation("com.github.HydrolienF:KntNBT:2.2.2")
@@ -47,7 +48,7 @@ dependencies {
 
 java {
     // Configure the java toolchain. This allows gradle to auto-provision JDK 21 on systems that only have JDK 8 installed for example.
-    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+    toolchain.languageVersion.set(JavaLanguageVersion.of(21)) // 25
     withJavadocJar()
     withSourcesJar()
 }
