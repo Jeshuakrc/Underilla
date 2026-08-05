@@ -113,7 +113,6 @@ ignoredBlockForSurfaceCalculation:
   - ".*_TRAPDOOR"
   - ".*_STEM"
   - "ICE"
-  - "VINE"
 
 
 # The biomes where vanilla underground will not be generated.
