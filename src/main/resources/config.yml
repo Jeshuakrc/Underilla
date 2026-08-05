@@ -112,6 +112,7 @@ ignoredBlockForSurfaceCalculation:
   - ".*_DOOR"
   - ".*_TRAPDOOR"
   - ".*_STEM"
+  - ".*_HYPHAE"
   - "ICE"
 
 
